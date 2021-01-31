@@ -1,0 +1,17 @@
+.bender/
+.metals/
+.vscode/
+.bsp/
+.bloop/
+.idea/
+project/target/
+target/
+simWorkspace/
+edaWorkspace/
+tmp/
+*.vcd
+*.v
+*.sv
+*.smt2
+*.log
+*.bin
