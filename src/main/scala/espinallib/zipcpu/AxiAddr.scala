@@ -4,11 +4,11 @@ import espinallib.GenUtils
 import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
-class axi_addr(
-                addressWidth: Int = 8,
-                dataWidth: Int = 8,
-                axi3: Boolean = false
-              ) extends BlackBox {
+class AxiAddrBlackBox(
+                       addressWidth: Int = 8,
+                       dataWidth: Int = 8,
+                       axi3: Boolean = false
+                     ) extends BlackBox {
 
   val io = new Bundle {
     val i_last_addr = in(UInt(addressWidth bits))
@@ -18,6 +18,8 @@ class axi_addr(
 
     val o_next_addr = out(UInt(addressWidth bits))
   }
+
+  setDefinitionName("axi_addr")
 
   addGeneric("AW", addressWidth)
   addGeneric("DW", dataWidth)
@@ -50,7 +52,7 @@ class AxiAddr(addrWidth: Int, dataWidth: Int, axi3: Boolean = false) extends Com
   }
 
   val axiAddr =
-    new axi_addr(addrWidth, dataWidth, axi3)
+    new AxiAddrBlackBox(addrWidth, dataWidth, axi3)
   axiAddr.io.i_last_addr := io.lastAddr
   axiAddr.io.i_size := io.size
   axiAddr.io.i_burst := io.burst

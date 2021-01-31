@@ -4,13 +4,13 @@ import espinallib.GenUtils
 import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/sfifo.v
-class sfifo(
-             dataWidth: Int = 8,
-             log2Size: Int = 4,
-             asyncRead: Boolean = true,
-             writeOnFull: Boolean = false,
-             readOnEmpty: Boolean = false
-           ) extends BlackBox {
+class SFifoBlackBox(
+                     dataWidth: Int = 8,
+                     log2Size: Int = 4,
+                     asyncRead: Boolean = true,
+                     writeOnFull: Boolean = false,
+                     readOnEmpty: Boolean = false
+                   ) extends BlackBox {
 
   val io = new Bundle {
     val i_clk = in(Bool)
@@ -26,6 +26,8 @@ class sfifo(
     val o_data = out(Bits(dataWidth bits))
     val o_empty = out(Bool)
   }
+
+  setBlackBoxName("sfifo")
 
   addGeneric("BW", dataWidth)
   addGeneric("LGFLEN", log2Size)
@@ -76,7 +78,7 @@ class SyncFifo[T <: Data](
   val dataWidth = widthOf(ty())
 
   val sFifo =
-    new sfifo(dataWidth, log2Size, asyncRead, writeOnFull, readOnEmpty)
+    new SFifoBlackBox(dataWidth, log2Size, asyncRead, writeOnFull, readOnEmpty)
 
   sFifo.io.i_wr := io.write
   sFifo.io.i_data := io.wData.asBits

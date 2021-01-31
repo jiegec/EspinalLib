@@ -23,6 +23,7 @@ trait GenUtils extends App {
         case s => s"${s}.sv"
       }
     )
-    formal.includeFormal.generateSystemVerilog(gen)
+    val report = formal.includeFormal.generateSystemVerilog(gen)
+    report.mergeRTLSource()
   }
 }
