@@ -1,0 +1,3 @@
+[submodule "submodules/wb2axip"]
+	path = submodules/wb2axip
+	url = https://github.com/ZipCPU/wb2axip
