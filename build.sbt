@@ -1,6 +1,7 @@
 name := "EspinalLib"
 version := "1.0"
 scalaVersion := "2.11.12"
+organization := "je.jia"
 
 val spinalVersion = "1.4.3"
 
