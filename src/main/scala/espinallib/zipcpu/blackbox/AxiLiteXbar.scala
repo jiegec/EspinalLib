@@ -1,4 +1,4 @@
-package espinallib.zipcpu
+package espinallib.zipcpu.blackbox
 
 import espinallib.GenUtils
 import spinal.core._
@@ -7,15 +7,15 @@ import spinal.lib.{master, slave}
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axilxbar.v
 class AxiLiteXbarBlackBox(
-                           addrWidth: Int = 32,
-                           dataWidth: Int = 32,
-                           numMasters: Int = 4,
-                           numSlaves: Int = 8,
-                           slaveAddr: Seq[BigInt] = Seq(),
-                           slaveMask: Seq[BigInt] = Seq(),
-                           lowPower: Boolean = true,
-                           linger: Int = 4,
-                           log2MaxBurst: Int = 5
+                           addrWidth: Int,
+                           dataWidth: Int,
+                           numMasters: Int,
+                           numSlaves: Int,
+                           slaveAddr: Seq[BigInt],
+                           slaveMask: Seq[BigInt],
+                           lowPower: Boolean,
+                           linger: Int,
+                           log2MaxBurst: Int
                          ) extends BlackBox {
 
   val io = new Bundle {
@@ -79,8 +79,19 @@ class AxiLiteXbarBlackBox(
   addGeneric("C_AXI_ADDR_WIDTH", addrWidth)
   addGeneric("NM", numMasters)
   addGeneric("NS", numSlaves)
-  //addGeneric("SLAVE_ADDR", slaveAddr.flatten)
-  //addGeneric("SLAVE_MASK", slaveMask)
+
+  var addr = BigInt(0)
+  for (a <- slaveAddr) {
+    addr = (addr << addrWidth) | a
+  }
+  addGeneric("SLAVE_ADDR", B(addr, numSlaves * addrWidth bits))
+
+  var mask = BigInt(0)
+  for (m <- slaveMask) {
+    mask = (mask << addrWidth) | m
+  }
+  addGeneric("SLAVE_MASK", B(mask, numSlaves * addrWidth bits))
+
   addGeneric("OPT_LOWPOWER", lowPower)
   addGeneric("OPT_LINGER", linger)
   addGeneric("LGMAXBURST", log2MaxBurst)
@@ -106,8 +117,8 @@ class AxiLiteXbar(
                    dataWidth: Int = 32,
                    numMasters: Int = 4,
                    numSlaves: Int = 8,
-                   slaveAddr: Seq[BigInt] = Seq(),
-                   slaveMask: Seq[BigInt] = Seq(),
+                   slaveAddr: Seq[BigInt] = Seq(0xE0000000L, 0xC0000000L, 0xA0000000L, 0x80000000L, 0x60000000L, 0x40000000L, 0x10000000L, 0x00000000L).map(BigInt(_)),
+                   slaveMask: Seq[BigInt] = Seq(0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xF0000000L, 0xF0000000L).map(BigInt(_)),
                    lowPower: Boolean = true,
                    linger: Int = 4,
                    log2MaxBurst: Int = 5

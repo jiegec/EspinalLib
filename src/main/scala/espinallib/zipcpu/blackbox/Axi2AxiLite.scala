@@ -1,4 +1,4 @@
-package espinallib.zipcpu
+package espinallib.zipcpu.blackbox
 
 import espinallib.GenUtils
 import spinal.core._
@@ -8,12 +8,12 @@ import spinal.lib.bus.amba4.axilite.{AxiLite4, AxiLite4Config, AxiLite4SpecRenam
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi2axilite.v
 class Axi2AxiLiteBlackBox(
-                           idWidth: Int = 2,
-                           addrWidth: Int = 6,
-                           dataWidth: Int = 32,
-                           writes: Boolean = true,
-                           reads: Boolean = true,
-                           log2Size: Int = 4
+                           idWidth: Int,
+                           addrWidth: Int,
+                           dataWidth: Int,
+                           writes: Boolean,
+                           reads: Boolean,
+                           log2Size: Int
                          ) extends BlackBox {
 
   val io = new Bundle {

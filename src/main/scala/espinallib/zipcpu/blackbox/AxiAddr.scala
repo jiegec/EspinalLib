@@ -1,4 +1,4 @@
-package espinallib.zipcpu
+package espinallib.zipcpu.blackbox
 
 import espinallib.GenUtils
 import spinal.core._

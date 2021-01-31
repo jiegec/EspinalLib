@@ -1,4 +1,4 @@
-package espinallib.zipcpu
+package espinallib.zipcpu.blackbox
 
 import espinallib.GenUtils
 import spinal.core._
@@ -91,7 +91,7 @@ class SyncFifo[T <: Data](
 
 }
 
-object SFifoEquivVerilog extends GenUtils {
+object SyncFifoVerilog extends GenUtils {
   work(
     new SyncFifo(
       UInt(32 bits)
