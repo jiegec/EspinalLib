@@ -1,5 +1,6 @@
 package espinallib.zipcpu
 
+import espinallib.GenUtils
 import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/sfifo.v
@@ -41,7 +42,7 @@ class sfifo(
 }
 
 // wrapper for sfifo
-class SFifo[T <: Data](
+class SyncFifo[T <: Data](
                            ty: HardType[T],
                            log2Size: Int = 4,
                            asyncRead: Boolean = true,
@@ -86,4 +87,12 @@ class SFifo[T <: Data](
   io.rData.assignFromBits(sFifo.io.o_data)
   io.empty := sFifo.io.o_empty
 
+}
+
+object SFifoEquivVerilog extends GenUtils {
+  work(
+    new SyncFifo(
+      UInt(32 bits)
+    )
+  )
 }
