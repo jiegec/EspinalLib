@@ -1,31 +1,9 @@
 package espinallib.zipcpu.rewrite
 
 import espinallib.GenUtils
+import espinallib.common.SkidBufferCommon
 import espinallib.formal.FormalUtils.doFormal
-import espinallib.formal.StreamFormal
 import spinal.core._
-import spinal.lib._
-
-// Related reading:
-// https://electronics.stackexchange.com/questions/481603/understanding-skid-buffer-mechanism
-// https://www.cs.upc.edu/~jordicf/gavina/BIB/files/PhD_Galceran.pdf
-
-class SkidBufferCommon[T <: Data](
-                                   gen: => T
-                                 ) extends Component {
-  val io = new Bundle {
-    val s = slave(Stream(gen))
-    val m = master(Stream(gen))
-  }
-
-  // formal properties
-  io.s.validBeforeReady()
-  io.m.validBeforeReady(slave = false)
-  io.s.notValidAfterReset()
-  io.m.notValidAfterReset(slave = false)
-  io.s.flowContinuously(4)
-  io.m.flowContinuously(4)
-}
 
 // Implement skid buffer
 // ZipCPU's blog post: https://zipcpu.com/blog/2019/05/22/skidbuffer.html
