@@ -22,13 +22,13 @@ class AxiDmaBlackBox(
     // AXI4-Lite slave interface
     val S_AXIL_AWVALID = in(Bool)
     val S_AXIL_AWREADY = out(Bool)
-    val S_AXIL_AWADDR = in(UInt(addrWidth bits))
+    val S_AXIL_AWADDR = in(UInt(5 bits))
     val S_AXIL_AWPROT = in(Bits(3 bits))
 
     val S_AXIL_WVALID = in(Bool)
     val S_AXIL_WREADY = out(Bool)
-    val S_AXIL_WDATA = in(Bits(dataWidth bits))
-    val S_AXIL_WSTRB = in(Bits(dataWidth / 8 bits))
+    val S_AXIL_WDATA = in(Bits(32 bits))
+    val S_AXIL_WSTRB = in(Bits(32 / 8 bits))
 
     val S_AXIL_BVALID = out(Bool)
     val S_AXIL_BREADY = in(Bool)
@@ -36,12 +36,12 @@ class AxiDmaBlackBox(
 
     val S_AXIL_ARVALID = in(Bool)
     val S_AXIL_ARREADY = out(Bool)
-    val S_AXIL_ARADDR = in(UInt(addrWidth bits))
+    val S_AXIL_ARADDR = in(UInt(5 bits))
     val S_AXIL_ARPROT = in(Bits(3 bits))
 
     val S_AXIL_RVALID = out(Bool)
     val S_AXIL_RREADY = in(Bool)
-    val S_AXIL_RDATA = out(Bits(dataWidth bits))
+    val S_AXIL_RDATA = out(Bits(32 bits))
     val S_AXIL_RRESP = out(Bits(2 bits))
 
     // AXI4 master interface
@@ -108,6 +108,8 @@ class AxiDmaBlackBox(
   noIoPrefix()
 
   addRTLPath("./submodules/wb2axip/rtl/axidma.v")
+  addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
+  addRTLPath("./submodules/wb2axip/rtl/sfifo.v")
   addRTLPath("./submodules/wb2axip/bench/formal/faxil_slave.v")
 }
 
@@ -140,7 +142,7 @@ class AxiDma(
   // slave
   ip.io.S_AXIL_AWVALID := s.aw.valid
   s.aw.ready := ip.io.S_AXIL_AWREADY
-  ip.io.S_AXIL_AWADDR := s.aw.addr
+  ip.io.S_AXIL_AWADDR := s.aw.addr.resized
   ip.io.S_AXIL_AWPROT := s.aw.prot
 
   ip.io.S_AXIL_WVALID := s.w.valid
@@ -154,7 +156,7 @@ class AxiDma(
 
   ip.io.S_AXIL_ARVALID := s.ar.valid
   s.ar.ready := ip.io.S_AXIL_ARREADY
-  ip.io.S_AXIL_ARADDR := s.ar.addr
+  ip.io.S_AXIL_ARADDR := s.ar.addr.resized
   ip.io.S_AXIL_ARPROT := s.ar.prot
 
   s.r.valid := ip.io.S_AXIL_RVALID
