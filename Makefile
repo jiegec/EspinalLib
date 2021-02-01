@@ -24,11 +24,11 @@ passed: all
 	cat $^ > $@
 
 %.smt2: %.sv
-ifeq (,$(wildcard $(patsubst %.sv,%_bb.v,%^)))
-	yosys -v2 -p "read_verilog -formal $^" -p "prep" -p "write_smt2 -wires $@"
-else
-	yosys -v2 -p "read_verilog -formal $^" -p "read_verilog -formal $(patsubst %.sv,%_bb.v,$^)" -p "prep" -p "write_smt2 -wires $@"
-endif
+	if [ -s $(patsubst %.sv,%_bb.v,$^) ]; then \
+		yosys -v2 -p "read_verilog -formal $^" -p "read_verilog -formal $(patsubst %.sv,%_bb.v,$^)" -p "prep" -p "write_smt2 -wires $@"; \
+	else \
+		yosys -v2 -p "read_verilog -formal $^" -p "prep" -p "write_smt2 -wires $@"; \
+	fi
 
 # bmc
 %_check1.log: %.smt2
