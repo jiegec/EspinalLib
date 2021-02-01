@@ -1,6 +1,6 @@
-package espinallib
+package espinallib.common
 
-import spinal.core._
+import spinal.core.{ClockDomainConfig, Component, SYNC, SpinalConfig}
 
 trait GenUtils extends App {
   def work[T <: Component](gen: => T, netlistName: String = null): Unit = {

@@ -1,6 +1,6 @@
 package espinallib.zipcpu.equiv
 
-import espinallib.GenUtils
+import espinallib.common.GenUtils
 import espinallib.formal.FormalUtils.doFormal
 import espinallib.zipcpu.{blackbox, rewrite}
 import spinal.core._

@@ -1,6 +1,6 @@
 package espinallib.zipcpu.rewrite
 
-import espinallib.GenUtils
+import espinallib.common.GenUtils
 import espinallib.formal.FormalUtils.doFormal
 import spinal.core.Formal.past
 import spinal.core._

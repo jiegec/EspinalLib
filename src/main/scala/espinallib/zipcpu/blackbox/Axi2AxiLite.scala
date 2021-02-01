@@ -1,6 +1,6 @@
 package espinallib.zipcpu.blackbox
 
-import espinallib.GenUtils
+import espinallib.common.GenUtils
 import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4SpecRenamer}

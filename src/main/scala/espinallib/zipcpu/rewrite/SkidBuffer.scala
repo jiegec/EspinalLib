@@ -1,7 +1,6 @@
 package espinallib.zipcpu.rewrite
 
-import espinallib.GenUtils
-import espinallib.common.SkidBufferCommon
+import espinallib.common.{GenUtils, SkidBufferCommon}
 import espinallib.formal.FormalUtils.doFormal
 import spinal.core._
 

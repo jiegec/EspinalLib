@@ -1,7 +1,6 @@
 package espinallib.rewrite
 
-import espinallib.GenUtils
-import espinallib.common.SkidBufferCommon
+import espinallib.common.{GenUtils, SkidBufferCommon}
 import spinal.core._
 
 object SkidBuffer2State extends SpinalEnum {

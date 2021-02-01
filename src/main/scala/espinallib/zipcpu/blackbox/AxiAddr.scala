@@ -1,6 +1,6 @@
 package espinallib.zipcpu.blackbox
 
-import espinallib.GenUtils
+import espinallib.common.GenUtils
 import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
