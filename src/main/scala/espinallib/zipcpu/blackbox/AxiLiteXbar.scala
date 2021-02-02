@@ -81,13 +81,13 @@ class AxiLiteXbarBlackBox(
   addGeneric("NS", numSlaves)
 
   var addr = BigInt(0)
-  for (a <- slaveAddr) {
+  for (a <- slaveAddr.reverse) {
     addr = (addr << addrWidth) | a
   }
   addGeneric("SLAVE_ADDR", B(addr, numSlaves * addrWidth bits))
 
   var mask = BigInt(0)
-  for (m <- slaveMask) {
+  for (m <- slaveMask.reverse) {
     mask = (mask << addrWidth) | m
   }
   addGeneric("SLAVE_MASK", B(mask, numSlaves * addrWidth bits))
@@ -119,8 +119,9 @@ class AxiLiteXbar(
                    dataWidth: Int = 32,
                    numMasters: Int = 4,
                    numSlaves: Int = 8,
-                   slaveAddr: Seq[BigInt] = Seq(0xE0000000L, 0xC0000000L, 0xA0000000L, 0x80000000L, 0x60000000L, 0x40000000L, 0x10000000L, 0x00000000L).map(BigInt(_)),
-                   slaveMask: Seq[BigInt] = Seq(0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xF0000000L, 0xF0000000L).map(BigInt(_)),
+                   slaveAddr: Seq[BigInt] = Seq(0x00000000L, 0x10000000L, 0x40000000L, 0x60000000L, 0x80000000L, 0xA0000000L, 0xC0000000L, 0xE0000000L).map(BigInt(_)),
+                   slaveMask: Seq[BigInt] = Seq(0xF0000000L, 0xF0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L).map(BigInt(_)),
+                   slaveAddrWidth: Seq[Int] = List.fill(8)(32),
                    lowPower: Boolean = true,
                    linger: Int = 4,
                    log2MaxBurst: Int = 5
@@ -129,7 +130,9 @@ class AxiLiteXbar(
   val axiLiteCfg = AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
 
   val s = Vec(slave(AxiLite4(axiLiteCfg)), numMasters)
-  val m = Vec(master(AxiLite4(axiLiteCfg)), numSlaves)
+  val m = for (i <- 0 until numSlaves) yield {
+    master(AxiLite4(slaveAddrWidth(i), dataWidth))
+  }
   val ip = new AxiLiteXbarBlackBox(addrWidth, dataWidth, numMasters, numSlaves, slaveAddr, slaveMask, lowPower, linger, log2MaxBurst)
 
   for ((sl, i) <- s.zipWithIndex) {
@@ -165,7 +168,7 @@ class AxiLiteXbar(
 
     ma.aw.valid := ip.io.M_AXI_AWVALID(i)
     ip.io.M_AXI_AWREADY(i) := ma.aw.ready
-    ma.aw.addr := U(ip.io.M_AXI_AWADDR(i * addrWidth, addrWidth bits))
+    ma.aw.addr := U(ip.io.M_AXI_AWADDR(i * addrWidth, addrWidth bits)).resized
     ma.aw.prot := ip.io.M_AXI_AWPROT(i * 3, 3 bits)
 
     ma.w.valid := ip.io.M_AXI_WVALID(i)
@@ -179,7 +182,7 @@ class AxiLiteXbar(
 
     ma.ar.valid := ip.io.M_AXI_ARVALID(i)
     ip.io.M_AXI_ARREADY(i) := ma.ar.ready
-    ma.ar.addr := U(ip.io.M_AXI_ARADDR(i * addrWidth, addrWidth bits))
+    ma.ar.addr := U(ip.io.M_AXI_ARADDR(i * addrWidth, addrWidth bits)).resized
     ma.ar.prot := ip.io.M_AXI_ARPROT(i * 3, 3 bits)
 
     ip.io.M_AXI_RVALID(i) := ma.r.valid
@@ -191,6 +194,6 @@ class AxiLiteXbar(
 
 object AxiLiteXbarVerilog extends GenUtils {
   work(
-    new AxiLiteXbar()
+    new AxiLiteXbar(slaveAddrWidth = Seq(8, 16, 24, 32, 32, 32, 32, 32))
   )
 }
