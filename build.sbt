@@ -3,7 +3,7 @@ version := "1.0"
 scalaVersion := "2.11.12"
 organization := "je.jia"
 
-val spinalVersion = "1.4.3"
+val spinalVersion = "1.4.4"
 
 libraryDependencies ++= Seq(
   "com.github.spinalhdl" %% "spinalhdl-core" % spinalVersion,
