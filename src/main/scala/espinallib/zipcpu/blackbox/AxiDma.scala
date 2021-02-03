@@ -214,6 +214,18 @@ class AxiDma(
   intr := ip.io.o_int
 }
 
+object AxiDmaRegisters {
+  // register offset
+  // 0: Control
+  def controlAddr = 0x0
+  // 2-3: Source
+  def srcAddr = 0x8
+  // 4-5: Destination
+  def destAddr = 0x10
+  // 6-7: Length
+  def lenAddr = 0x18
+}
+
 object AxiDmaVerilog extends GenUtils {
   work(
     new AxiDma()
