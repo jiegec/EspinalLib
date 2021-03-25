@@ -1,8 +1,6 @@
 package espinallib.rewrite
 
 import espinallib.common.GenUtils
-import espinallib.rewrite
-import espinallib.rewrite.SkidBuffer2Verilog.work
 import spinal.core._
 import spinal.core.sim.SimDataPimper
 import spinal.lib._
@@ -23,8 +21,7 @@ class BuffetDownstream(idxWidth: Int, dataWidth: Int) extends Bundle {
 
 // simplified version of buffet
 // https://github.com/cwfletcher/buffets/blob/master/dut/buffet_control.v
-class Buffet(idxWidth: Int, dataWidth: Int)
-    extends Component {
+class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   val io = new Bundle {
     val fill = slave(Stream(Bits(dataWidth bits)))
 
@@ -47,8 +44,9 @@ class Buffet(idxWidth: Int, dataWidth: Int)
   val count = 1 << idxWidth
   val memory = Mem(Bits(dataWidth bits), count)
 
-  val head = RegInit(U(0, idxWidth bits))
-  val tail = RegInit(U(0, idxWidth bits))
+  // An extra bit to tell difference between empty and full
+  val head = RegInit(U(0, (idxWidth + 1) bits))
+  val tail = RegInit(U(0, (idxWidth + 1) bits))
   val occupancy = tail - head
   io.credit := U(count, (idxWidth + 1) bits) - occupancy
 
@@ -62,17 +60,11 @@ class Buffet(idxWidth: Int, dataWidth: Int)
   val updateEvent =
     ~empty & io.downstream.valid && io.downstream.action === BuffetAction.Update
 
-  val idxValid = False
-  when(head <= tail) {
-    idxValid := io.downstream.idxOrSize >= head && io.downstream.idxOrSize < tail
-  }.otherwise {
-    // the original version seems wrong?
-    idxValid := io.downstream.idxOrSize >= head || io.downstream.idxOrSize < tail
-  }
+  val idxValid = io.downstream.idxOrSize < occupancy
 
-  io.fill.ready := True
+  io.fill.ready := io.credit =/= 0
   when(io.fill.valid) {
-    memory.write(tail, io.fill.payload)
+    memory.write(tail.resize(idxWidth bits), io.fill.payload)
     tail := tail + 1
   }
 
@@ -92,7 +84,10 @@ class Buffet(idxWidth: Int, dataWidth: Int)
     is(BuffetAction.Update) {
       io.downstream.ready := True
       when(io.downstream.valid) {
-        memory.write(io.downstream.idxOrSize + head, io.downstream.data)
+        memory.write(
+          (io.downstream.idxOrSize + head).resize(idxWidth bits),
+          io.downstream.data
+        )
       }
     }
     is(BuffetAction.Shrink) {
@@ -112,12 +107,14 @@ class Buffet(idxWidth: Int, dataWidth: Int)
             when(io.downstream.valid) {
               when(idxValid) {
                 // no stall
-                readIdxStream.payload := io.downstream.idxOrSize + head
+                readIdxStream.payload := (io.downstream.idxOrSize + head)
+                  .resize(idxWidth bits)
                 readIdxStream.valid := True
               } otherwise {
                 // stall, wait for data
                 state := BuffetState.sWait
-                readIdxStage := io.downstream.idxOrSize + head
+                readIdxStage := (io.downstream.idxOrSize + head)
+                  .resize(idxWidth bits)
               }
             }
           }
@@ -165,7 +162,7 @@ class Buffet(idxWidth: Int, dataWidth: Int)
 
   when(readDataValid) {
     readDataStream.payload := readDataStage
-  } elsewhen(fireStage) {
+  } elsewhen (fireStage) {
     readDataStream.payload := memRead
   }
 

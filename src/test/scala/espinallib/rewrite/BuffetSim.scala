@@ -11,7 +11,6 @@ import spinal.core.sim.{
 }
 
 import java.util
-import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -25,7 +24,7 @@ class BuffetSim extends AnyFunSuite {
         dut.clockDomain.forkStimulus(period = 10)
 
         val done = new AtomicBoolean()
-        val data = Collections.synchronizedList(new util.ArrayList[Int]())
+        val data = new util.ArrayList[Int]()
         val readAddress = new ConcurrentLinkedDeque[Int]()
 
         val fillMonitor = fork {
@@ -33,8 +32,10 @@ class BuffetSim extends AnyFunSuite {
             dut.clockDomain.waitRisingEdge()
             if (dut.io.fill.ready.toBoolean && dut.io.fill.valid.toBoolean) {
               val payload = dut.io.fill.payload.toInt
-              printf(s"Fill: ${payload}\n")
-              data.add(payload)
+              data.synchronized {
+                data.add(payload)
+                printf(s"Fill: ${payload} -> ${data}\n")
+              }
             }
           }
         }
@@ -58,7 +59,12 @@ class BuffetSim extends AnyFunSuite {
               } else if (
                 dut.io.downstream.action.toEnum == BuffetAction.Shrink
               ) {
-                printf(s"Shrink: ${dut.io.downstream.idxOrSize.toInt}\n")
+                val shrink = dut.io.downstream.idxOrSize.toInt
+                data.synchronized {
+                  // remove first n elements
+                  data.subList(0, shrink).clear()
+                  printf(s"Shrink: ${shrink} -> ${data}\n")
+                }
               }
             }
           }
@@ -161,6 +167,52 @@ class BuffetSim extends AnyFunSuite {
         dut.io.downstream.valid #= false
         dut.clockDomain.waitRisingEdge()
         assert(dut.io.readData.payload.toInt == 3)
+
+        // shrink then read
+        dut.io.downstream.valid #= true
+        dut.io.downstream.action #= BuffetAction.Shrink
+        dut.io.downstream.idxOrSize #= 1
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.downstream.ready.toBoolean
+        }
+        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.idxOrSize #= 0
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.downstream.ready.toBoolean
+        }
+        dut.io.downstream.valid #= false
+        dut.io.readData.ready #= true
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.readData.valid.toBoolean
+        }
+        assert(dut.io.readData.payload.toInt == 2)
+
+        // test fill to full
+        dut.io.fill.valid #= true
+        for (i <- 5 until 10) {
+          dut.io.fill.payload #= i
+          dut.clockDomain.waitSamplingWhere {
+            dut.io.fill.ready.toBoolean
+          }
+        }
+        dut.io.fill.valid #= false
+        dut.clockDomain.waitRisingEdge()
+        assert(dut.io.credit.toInt == 0)
+
+        // read last element
+        dut.io.downstream.valid #= true
+        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.idxOrSize #= 7
+        dut.io.readData.ready #= false
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.downstream.ready.toBoolean
+        }
+        dut.io.downstream.valid #= false
+        dut.io.readData.ready #= true
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.readData.valid.toBoolean
+        }
+        assert(dut.io.readData.payload.toInt == 9)
 
         dut.io.fill.valid #= false
         dut.io.downstream.valid #= false
