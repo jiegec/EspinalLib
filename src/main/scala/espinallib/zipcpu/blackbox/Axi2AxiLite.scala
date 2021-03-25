@@ -108,6 +108,9 @@ class Axi2AxiLiteBlackBox(
   noIoPrefix()
 
   addRTLPath("./submodules/wb2axip/rtl/axi2axilite.v")
+  addRTLPath("./submodules/wb2axip/rtl/skidbuffer.v")
+  addRTLPath("./submodules/wb2axip/rtl/sfifo.v")
+  addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
   GenerationFlags.formal {
     addRTLPath("./submodules/wb2axip/bench/formal/faxil_master.v")
   }
