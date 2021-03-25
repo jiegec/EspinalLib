@@ -1,7 +1,19 @@
 package espinallib.rewrite
 
 import org.scalatest.funsuite.AnyFunSuite
-import spinal.core.sim.{SimBitVectorPimper, SimBoolPimper, SimClockDomainHandlePimper, SimConfig, SimEnumPimper}
+import spinal.core.sim.{
+  SimBitVectorPimper,
+  SimBoolPimper,
+  SimClockDomainHandlePimper,
+  SimConfig,
+  SimEnumPimper,
+  fork
+}
+
+import java.util
+import java.util.Collections
+import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.atomic.AtomicBoolean
 
 class BuffetSim extends AnyFunSuite {
   test("Buffet") {
@@ -11,6 +23,61 @@ class BuffetSim extends AnyFunSuite {
         new Buffet(3, 32)
       ) { dut =>
         dut.clockDomain.forkStimulus(period = 10)
+
+        val done = new AtomicBoolean()
+        val data = Collections.synchronizedList(new util.ArrayList[Int]())
+        val readAddress = new ConcurrentLinkedDeque[Int]()
+
+        val fillMonitor = fork {
+          while (!done.get()) {
+            dut.clockDomain.waitRisingEdge()
+            if (dut.io.fill.ready.toBoolean && dut.io.fill.valid.toBoolean) {
+              val payload = dut.io.fill.payload.toInt
+              printf(s"Fill: ${payload}\n")
+              data.add(payload)
+            }
+          }
+        }
+
+        val downstreamMonitor = fork {
+          while (!done.get()) {
+            dut.clockDomain.waitRisingEdge()
+            if (
+              dut.io.downstream.ready.toBoolean && dut.io.downstream.valid.toBoolean
+            ) {
+              val idxOrSize = dut.io.downstream.idxOrSize.toInt
+              if (dut.io.downstream.action.toEnum == BuffetAction.Read) {
+                printf(s"Read: ${idxOrSize}\n")
+                readAddress.addLast(idxOrSize)
+              } else if (
+                dut.io.downstream.action.toEnum == BuffetAction.Update
+              ) {
+                printf(
+                  s"Update: ${dut.io.downstream.idxOrSize.toInt} ${dut.io.downstream.data.toInt}\n"
+                )
+              } else if (
+                dut.io.downstream.action.toEnum == BuffetAction.Shrink
+              ) {
+                printf(s"Shrink: ${dut.io.downstream.idxOrSize.toInt}\n")
+              }
+            }
+          }
+        }
+
+        val readDataMonitor = fork {
+          while (!done.get()) {
+            dut.clockDomain.waitRisingEdge()
+            if (
+              dut.io.readData.ready.toBoolean && dut.io.readData.valid.toBoolean
+            ) {
+              val read = dut.io.readData.payload.toInt
+              printf(s"ReadData: ${read}\n")
+              assert(!readAddress.isEmpty)
+              val addr = readAddress.pollFirst()
+              assert(data.get(addr) == read)
+            }
+          }
+        }
 
         dut.io.fill.valid #= false
         dut.io.downstream.valid #= false
@@ -94,6 +161,13 @@ class BuffetSim extends AnyFunSuite {
         dut.io.downstream.valid #= false
         dut.clockDomain.waitRisingEdge()
         assert(dut.io.readData.payload.toInt == 3)
+
+        dut.io.fill.valid #= false
+        dut.io.downstream.valid #= false
+        done.set(true)
+        fillMonitor.join()
+        downstreamMonitor.join()
+        readDataMonitor.join()
 
         dut.clockDomain.waitRisingEdge(10)
       }
