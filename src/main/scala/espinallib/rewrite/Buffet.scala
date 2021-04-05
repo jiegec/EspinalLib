@@ -47,7 +47,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   // An extra bit to tell difference between empty and full
   val head = RegInit(U(0, (idxWidth + 1) bits))
   val tail = RegInit(U(0, (idxWidth + 1) bits))
-  val occupancy = tail - head
+  val occupancy = RegInit(U(0, (idxWidth + 1) bits))
   io.credit := U(count, (idxWidth + 1) bits) - occupancy
 
   val empty = occupancy === 0
@@ -67,6 +67,16 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
     memory.write(tail.resize(idxWidth bits), io.fill.payload)
     tail := tail + 1
   }
+
+  val occupancyAdd = U(0, (idxWidth + 1) bits)
+  val occupancySub = U(0, (idxWidth + 1) bits)
+  when(io.fill.valid) {
+    occupancyAdd := 1
+  }
+  when(io.downstream.valid && io.downstream.action === BuffetAction.Shrink) {
+    occupancySub := io.downstream.idxOrSize.resized
+  }
+  occupancy := occupancy + occupancyAdd - occupancySub
 
   val state = RegInit(BuffetState.sReady)
   state.simPublic()
@@ -105,7 +115,9 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
           } otherwise {
             io.downstream.ready := True
             when(io.downstream.valid) {
-              when(idxValid) {
+              when(
+                idxValid || (io.fill.fire && io.downstream.idxOrSize === occupancy)
+              ) {
                 // no stall
                 readIdxStream.payload := (io.downstream.idxOrSize + head)
                   .resize(idxWidth bits)
@@ -119,16 +131,19 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
             }
           }
         }
-        is(BuffetState.sWait) {
-          io.downstream.ready := False
-          when(io.fill.fire && readIdxStage === tail) {
-            // data is available
-            readIdxStream.payload := readIdxStage
-            readIdxStream.valid := True
-            when(readIdxStream.ready) {
-              state := BuffetState.sReady
-            }
-          }
+      }
+    }
+  }
+
+  switch(state) {
+    is(BuffetState.sWait) {
+      io.downstream.ready := False
+      when(io.fill.fire && readIdxStage === tail) {
+        // data is available
+        readIdxStream.payload := readIdxStage
+        readIdxStream.valid := True
+        when(readIdxStream.ready) {
+          state := BuffetState.sReady
         }
       }
     }
