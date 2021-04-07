@@ -56,6 +56,12 @@ class BuffetSim extends AnyFunSuite {
                 printf(
                   s"Update: ${dut.io.downstream.idxOrSize.toInt} ${dut.io.downstream.data.toInt}\n"
                 )
+                data.synchronized {
+                  data.set(
+                    dut.io.downstream.idxOrSize.toInt,
+                    dut.io.downstream.data.toInt
+                  )
+                }
               } else if (
                 dut.io.downstream.action.toEnum == BuffetAction.Shrink
               ) {
@@ -213,6 +219,27 @@ class BuffetSim extends AnyFunSuite {
           dut.io.readData.valid.toBoolean
         }
         assert(dut.io.readData.payload.toInt == 9)
+
+        // update last element
+        dut.io.downstream.valid #= true
+        dut.io.downstream.action #= BuffetAction.Update
+        dut.io.downstream.idxOrSize #= 7
+        dut.io.downstream.data #= 0
+        dut.io.readData.ready #= false
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.downstream.ready.toBoolean
+        }
+
+        // read last element
+        dut.io.downstream.action #= BuffetAction.Read
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.downstream.ready.toBoolean
+        }
+        dut.io.readData.ready #= true
+        dut.clockDomain.waitSamplingWhere {
+          dut.io.readData.valid.toBoolean
+        }
+        assert(dut.io.readData.payload.toInt == 0)
 
         dut.io.fill.valid #= false
         dut.io.downstream.valid #= false
