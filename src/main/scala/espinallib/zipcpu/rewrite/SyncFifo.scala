@@ -5,25 +5,24 @@ import espinallib.formal.FormalUtils.doFormal
 import spinal.core.Formal.past
 import spinal.core._
 
-
 /** A synchronous fifo
- *
- * ref: https://github.com/ZipCPU/wb2axip/blob/master/rtl/sfifo.v
- *
- * @param ty data type
- * @param log2Size the log2 of fifo size
- * @param asyncRead whether read is async
- * @param writeOnFull support write on full
- * @param readOnEmpty support write on empty
- * @tparam T generic data type parameter
- */
+  *
+  * ref: https://github.com/ZipCPU/wb2axip/blob/master/rtl/sfifo.v
+  *
+  * @param ty data type
+  * @param log2Size the log2 of fifo size
+  * @param asyncRead whether read is async
+  * @param writeOnFull support write on full
+  * @param readOnEmpty support write on empty
+  * @tparam T generic data type parameter
+  */
 class SyncFifo[T <: Data](
-                           ty: HardType[T],
-                           log2Size: Int = 4,
-                           asyncRead: Boolean = true,
-                           writeOnFull: Boolean = false,
-                           readOnEmpty: Boolean = false
-                         ) extends Component {
+    ty: HardType[T],
+    log2Size: Int = 4,
+    asyncRead: Boolean = true,
+    writeOnFull: Boolean = false,
+    readOnEmpty: Boolean = false
+) extends Component {
   val io = new Bundle {
 
     /** write enable */

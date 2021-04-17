@@ -7,9 +7,9 @@ import spinal.core._
 
 // verify the equivalence between two impls
 class AxiAddrEquiv(
-                    addressWidth: Int = 8,
-                    dataWidth: Int = 8
-                  ) extends Component {
+    addressWidth: Int = 8,
+    dataWidth: Int = 8
+) extends Component {
   val io = new Bundle {
     val lastAddr = in(UInt(addressWidth bits))
     val size = in(UInt(3 bits))
@@ -44,7 +44,8 @@ class AxiAddrEquiv(
 object AxiAddrEquivVerilog extends GenUtils {
   work(
     new AxiAddrEquiv(
-      32, 32
+      32,
+      32
     )
   )
 }

@@ -11,10 +11,10 @@ import spinal.core._
 // When outputReg = true, all output signals(io.s.ready, io.m.valid and io.m.payload) are registered
 // When outputReg = false, only io.s.ready is registered
 class SkidBuffer[T <: Data](
-                             gen: => T,
-                             lowPower: Boolean = false,
-                             outputReg: Boolean = true
-                           ) extends SkidBufferCommon(gen) {
+    gen: => T,
+    lowPower: Boolean = false,
+    outputReg: Boolean = true
+) extends SkidBufferCommon(gen) {
   val rValid = Reg(Bool) init (False)
   val dataWidth = widthOf(gen)
   val rData = Reg(Bits(dataWidth bits))

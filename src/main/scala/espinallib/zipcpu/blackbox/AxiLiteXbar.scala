@@ -2,21 +2,25 @@ package espinallib.zipcpu.blackbox
 
 import espinallib.common.GenUtils
 import spinal.core._
-import spinal.lib.bus.amba4.axilite.{AxiLite4, AxiLite4Config, AxiLite4SpecRenamer}
+import spinal.lib.bus.amba4.axilite.{
+  AxiLite4,
+  AxiLite4Config,
+  AxiLite4SpecRenamer
+}
 import spinal.lib.{master, slave}
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axilxbar.v
 class AxiLiteXbarBlackBox(
-                           addrWidth: Int,
-                           dataWidth: Int,
-                           numMasters: Int,
-                           numSlaves: Int,
-                           slaveAddr: Seq[BigInt],
-                           slaveMask: Seq[BigInt],
-                           lowPower: Boolean,
-                           linger: Int,
-                           log2MaxBurst: Int
-                         ) extends BlackBox {
+    addrWidth: Int,
+    dataWidth: Int,
+    numMasters: Int,
+    numSlaves: Int,
+    slaveAddr: Seq[BigInt],
+    slaveMask: Seq[BigInt],
+    lowPower: Boolean,
+    linger: Int,
+    log2MaxBurst: Int
+) extends BlackBox {
 
   val io = new Bundle {
     val S_AXI_ACLK = in(Bool)
@@ -115,38 +119,61 @@ class AxiLiteXbarBlackBox(
 }
 
 class AxiLiteXbar(
-                   addrWidth: Int = 32,
-                   dataWidth: Int = 32,
-                   numMasters: Int = 4,
-                   numSlaves: Int = 8,
-                   slaveAddr: Seq[BigInt] = Seq(0x00000000L, 0x10000000L, 0x40000000L, 0x60000000L, 0x80000000L, 0xA0000000L, 0xC0000000L, 0xE0000000L).map(BigInt(_)),
-                   slaveMask: Seq[BigInt] = Seq(0xF0000000L, 0xF0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L, 0xE0000000L).map(BigInt(_)),
-                   slaveAddrWidth: Seq[Int] = List.fill(8)(32),
-                   lowPower: Boolean = true,
-                   linger: Int = 4,
-                   log2MaxBurst: Int = 5
-                 ) extends Component {
+    addrWidth: Int = 32,
+    dataWidth: Int = 32,
+    numMasters: Int = 4,
+    numSlaves: Int = 8,
+    slaveAddr: Seq[BigInt] =
+      Seq(0x00000000L, 0x10000000L, 0x40000000L, 0x60000000L, 0x80000000L,
+        0xa0000000L, 0xc0000000L, 0xe0000000L).map(BigInt(_)),
+    slaveMask: Seq[BigInt] =
+      Seq(0xf0000000L, 0xf0000000L, 0xe0000000L, 0xe0000000L, 0xe0000000L,
+        0xe0000000L, 0xe0000000L, 0xe0000000L).map(BigInt(_)),
+    slaveAddrWidth: Seq[Int] = List.fill(8)(32),
+    lowPower: Boolean = true,
+    linger: Int = 4,
+    log2MaxBurst: Int = 5
+) extends Component {
 
-  val axiLiteCfg = AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
+  val axiLiteCfg =
+    AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
 
   val s = Vec(slave(AxiLite4(axiLiteCfg)), numMasters)
   val m = for (i <- 0 until numSlaves) yield {
     master(AxiLite4(slaveAddrWidth(i), dataWidth))
   }
-  val ip = new AxiLiteXbarBlackBox(addrWidth, dataWidth, numMasters, numSlaves, slaveAddr, slaveMask, lowPower, linger, log2MaxBurst)
+  val ip = new AxiLiteXbarBlackBox(
+    addrWidth,
+    dataWidth,
+    numMasters,
+    numSlaves,
+    slaveAddr,
+    slaveMask,
+    lowPower,
+    linger,
+    log2MaxBurst
+  )
 
   for ((sl, i) <- s.zipWithIndex) {
     AxiLite4SpecRenamer(sl)
 
     ip.io.S_AXI_AWVALID(i) := sl.aw.valid
     sl.aw.ready := ip.io.S_AXI_AWREADY(i)
-    ip.io.S_AXI_AWADDR.assignFromBits(sl.aw.addr.asBits, i * addrWidth, addrWidth bits)
+    ip.io.S_AXI_AWADDR.assignFromBits(
+      sl.aw.addr.asBits,
+      i * addrWidth,
+      addrWidth bits
+    )
     ip.io.S_AXI_AWPROT.assignFromBits(sl.aw.prot, i * 3, 3 bits)
 
     ip.io.S_AXI_WVALID(i) := sl.w.valid
     sl.w.ready := ip.io.S_AXI_WREADY(i)
     ip.io.S_AXI_WDATA.assignFromBits(sl.w.data, i * dataWidth, dataWidth bits)
-    ip.io.S_AXI_WSTRB.assignFromBits(sl.w.strb, i * dataWidth / 8, dataWidth / 8 bits)
+    ip.io.S_AXI_WSTRB.assignFromBits(
+      sl.w.strb,
+      i * dataWidth / 8,
+      dataWidth / 8 bits
+    )
 
     sl.b.valid := ip.io.S_AXI_BVALID(i)
     ip.io.S_AXI_BREADY(i) := sl.b.ready
@@ -154,7 +181,11 @@ class AxiLiteXbar(
 
     ip.io.S_AXI_ARVALID(i) := sl.ar.valid
     sl.ar.ready := ip.io.S_AXI_ARREADY(i)
-    ip.io.S_AXI_ARADDR.assignFromBits(sl.ar.addr.asBits, i * addrWidth, addrWidth bits)
+    ip.io.S_AXI_ARADDR.assignFromBits(
+      sl.ar.addr.asBits,
+      i * addrWidth,
+      addrWidth bits
+    )
     ip.io.S_AXI_ARPROT.assignFromBits(sl.ar.prot, i * 3, 3 bits)
 
     sl.r.valid := ip.io.S_AXI_RVALID(i)

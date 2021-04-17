@@ -5,16 +5,15 @@ import espinallib.formal.FormalUtils.doFormal
 import spinal.core._
 import spinal.lib.bus.amba4.axi.Axi4.burst.{FIXED, INCR, RESERVED, WRAP}
 
-
 /** AXI4 burst transfer addr calculation
- *
- * ref: https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
- * blog post: https://zipcpu.com/blog/2019/04/27/axi-addr.html
- * standard: ARM IHI 0022E A3.4.1 Address structure
- *
- * @param addrWidth address width
- * @param dataWidth data width
- */
+  *
+  * ref: https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
+  * blog post: https://zipcpu.com/blog/2019/04/27/axi-addr.html
+  * standard: ARM IHI 0022E A3.4.1 Address structure
+  *
+  * @param addrWidth address width
+  * @param dataWidth data width
+  */
 class AxiAddr(addrWidth: Int, dataWidth: Int) extends Component {
   val io = new Bundle {
 

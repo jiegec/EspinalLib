@@ -86,7 +86,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   readWriteIdx := 0
   val memRead =
     memory.readWriteSync(readWriteIdx, io.downstream.data, True, writeEnable)
-  val readIdxStage = RegInit(U(0, idxWidth bits))
+  val readIdxStage = RegInit(U(0, idxWidth + 1 bits))
 
   readIdxStream.payload := 0
   readIdxStream.valid := False
@@ -125,8 +125,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
               } otherwise {
                 // stall, wait for data
                 state := BuffetState.sWait
-                readIdxStage := (io.downstream.idxOrSize + head)
-                  .resize(idxWidth bits)
+                readIdxStage := (io.downstream.idxOrSize + head).resized
               }
             }
           }
@@ -140,7 +139,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
       io.downstream.ready := False
       when(io.fill.fire && readIdxStage === tail) {
         // data is available
-        readIdxStream.payload := readIdxStage
+        readIdxStream.payload := readIdxStage.resized
         readIdxStream.valid := True
         when(readIdxStream.ready) {
           state := BuffetState.sReady

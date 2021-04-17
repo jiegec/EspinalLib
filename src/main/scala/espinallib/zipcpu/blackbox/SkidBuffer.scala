@@ -5,10 +5,10 @@ import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/skidbuffer.v
 class SkidBufferBlackBox(
-                          dataWidth: Int = 8,
-                          lowPower: Boolean = false,
-                          outputReg: Boolean = true
-                        ) extends BlackBox {
+    dataWidth: Int = 8,
+    lowPower: Boolean = false,
+    outputReg: Boolean = true
+) extends BlackBox {
 
   val io = new Bundle {
     val i_clk = in(Bool)
@@ -39,10 +39,10 @@ class SkidBufferBlackBox(
 
 // wrapper for skidbuffer
 class SkidBuffer[T <: Data](
-                             gen: => T,
-                             lowPower: Boolean = false,
-                             outputReg: Boolean = true
-                           ) extends SkidBufferCommon(gen) {
+    gen: => T,
+    lowPower: Boolean = false,
+    outputReg: Boolean = true
+) extends SkidBufferCommon(gen) {
   val dataWidth = widthOf(gen)
 
   val skidBuffer =

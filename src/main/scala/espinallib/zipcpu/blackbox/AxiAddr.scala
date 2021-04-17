@@ -5,10 +5,10 @@ import spinal.core._
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
 class AxiAddrBlackBox(
-                       addressWidth: Int = 8,
-                       dataWidth: Int = 8,
-                       axi3: Boolean = false
-                     ) extends BlackBox {
+    addressWidth: Int = 8,
+    dataWidth: Int = 8,
+    axi3: Boolean = false
+) extends BlackBox {
 
   val io = new Bundle {
     val i_last_addr = in(UInt(addressWidth bits))
@@ -30,9 +30,9 @@ class AxiAddrBlackBox(
   addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
 }
 
-
 // wrapper for axi_addr
-class AxiAddr(addrWidth: Int, dataWidth: Int, axi3: Boolean = false) extends Component {
+class AxiAddr(addrWidth: Int, dataWidth: Int, axi3: Boolean = false)
+    extends Component {
   val io = new Bundle {
 
     /** previous address */
@@ -63,7 +63,8 @@ class AxiAddr(addrWidth: Int, dataWidth: Int, axi3: Boolean = false) extends Com
 object AxiAddrVerilog extends GenUtils {
   work(
     new AxiAddr(
-      32, 32
+      32,
+      32
     )
   )
 }

@@ -5,7 +5,12 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4.resp.SLVERR
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4SpecRenamer}
-import spinal.lib.bus.amba4.axilite.{AxiLite4, AxiLite4Config, AxiLite4SpecRenamer, AxiLite4W}
+import spinal.lib.bus.amba4.axilite.{
+  AxiLite4,
+  AxiLite4Config,
+  AxiLite4SpecRenamer,
+  AxiLite4W
+}
 
 case class Axi2AxiLiteFifoBundle(idWidth: Int) extends Bundle {
   val id = UInt(idWidth bits)
@@ -13,9 +18,9 @@ case class Axi2AxiLiteFifoBundle(idWidth: Int) extends Bundle {
 }
 
 /** Convert from AXI4(slave) to AXI4-Lite(master)
- */
+  */
 class Axi2AxiLite(axiCfg: Axi4Config, axiLiteCfg: AxiLite4Config)
-  extends Component {
+    extends Component {
   val s = slave(Axi4(axiCfg))
   val m = master(AxiLite4(axiLiteCfg))
 

@@ -1,5 +1,3 @@
 package espinallib.hardfloat.rewrite
 
-object RoundAnyRawFNToRecFN {
-
-}
+object RoundAnyRawFNToRecFN {}

@@ -9,13 +9,13 @@ import scala.collection.mutable
 package object formal {
 
   /** Helper class for Stream formal verification.
-   *
-   * @param stream Stream interface
-   */
+    *
+    * @param stream Stream interface
+    */
   implicit class StreamFormal[D <: Data](stream: spinal.lib.Stream[D]) {
 
     /** Assert that stream is valid until ready rises
-     */
+      */
     def validBeforeReady(slave: Boolean = true, dataStable: Boolean = true) {
       implicit def isSlave: Boolean = slave
 
@@ -33,7 +33,7 @@ package object formal {
     }
 
     /** Assert that stream is not valid in the cycle right after reset falls
-     */
+      */
     def notValidAfterReset(slave: Boolean = true) {
       implicit def isSlave: Boolean = slave
 
@@ -46,13 +46,13 @@ package object formal {
     }
 
     /** Add cover property that stream flows in several cycles continuously
-     *
-     * @param cycles The number of cycles
-     */
+      *
+      * @param cycles The number of cycles
+      */
     def flowContinuously(
-                          cycles: Int,
-                          forcePayloadDifferent: Boolean = true
-                        ): Unit = {
+        cycles: Int,
+        forcePayloadDifferent: Boolean = true
+    ): Unit = {
       doFormal { (outerReset, pastValid) =>
         // data flows in cycles continuously
         var payload: Data = if (forcePayloadDifferent) stream.payload else null
@@ -75,9 +75,9 @@ package object formal {
       new mutable.HashMap[Component, Bool]()
 
     /** Do formal verification
-     *
-     * @param work a function of signature (outerReset, pastValid) => Unit
-     */
+      *
+      * @param work a function of signature (outerReset, pastValid) => Unit
+      */
     def doFormal(work: (Bool, Bool) => Unit) {
       val clockDomain = ClockDomain.current
       GenerationFlags.formal {
@@ -121,9 +121,9 @@ package object formal {
     }
 
     /** Create clock domain with BOOT reset
-     *
-     * @return Initial clock domain
-     */
+      *
+      * @return Initial clock domain
+      */
     def initialClockDomain: ClockDomain = {
       ClockDomain(
         ClockDomain.current.clock,
@@ -134,12 +134,12 @@ package object formal {
     }
 
     /** Generate condition for cover properties
-     *
-     * @param fire   Fire signal to keep high for several cycles
-     * @param data   Data signal to change for several cycles
-     * @param cycles the number of cycles
-     * @return Condition
-     */
+      *
+      * @param fire   Fire signal to keep high for several cycles
+      * @param data   Data signal to change for several cycles
+      * @param cycles the number of cycles
+      * @return Condition
+      */
     def genPast(fire: Bool, data: Data, cycles: Int): Bool = {
       var resFire = True
       var resData = True
@@ -156,11 +156,11 @@ package object formal {
     }
 
     /** Do assume for slave, assert for master
-     *
-     * @param assertion The assertion or assumption
-     * @param slave     Whether this is slave
-     * @return statement
-     */
+      *
+      * @param assertion The assertion or assumption
+      * @param slave     Whether this is slave
+      * @return statement
+      */
     def slaveAssume(assertion: Bool)(implicit slave: Boolean) = {
       if (slave) {
         assume(assertion)
@@ -170,11 +170,11 @@ package object formal {
     }
 
     /** Do assert for slave, assume for master
-     *
-     * @param assertion The assertion or assumption
-     * @param slave     Whether this is slave
-     * @return statement
-     */
+      *
+      * @param assertion The assertion or assumption
+      * @param slave     Whether this is slave
+      * @return statement
+      */
     def slaveAssert(assertion: Bool)(implicit slave: Boolean) = {
       if (slave) {
         assert(assertion)

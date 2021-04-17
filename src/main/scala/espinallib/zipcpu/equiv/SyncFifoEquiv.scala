@@ -7,12 +7,12 @@ import spinal.core._
 
 // verify the equivalence between two impls
 class SyncFifoEquiv(
-                     dataWidth: Int = 8,
-                     log2Size: Int = 4,
-                     asyncRead: Boolean = true,
-                     writeOnFull: Boolean = false,
-                     readOnEmpty: Boolean = false
-                   ) extends Component {
+    dataWidth: Int = 8,
+    log2Size: Int = 4,
+    asyncRead: Boolean = true,
+    writeOnFull: Boolean = false,
+    readOnEmpty: Boolean = false
+) extends Component {
   val io = new Bundle {
     // write interface
     val write = in(Bool)
@@ -23,7 +23,13 @@ class SyncFifoEquiv(
   }
 
   val theirs =
-    new blackbox.SyncFifo(Bits(dataWidth bits), log2Size, asyncRead, writeOnFull, readOnEmpty)
+    new blackbox.SyncFifo(
+      Bits(dataWidth bits),
+      log2Size,
+      asyncRead,
+      writeOnFull,
+      readOnEmpty
+    )
   theirs.io.write := io.write
   theirs.io.wData := io.wData
   theirs.io.read := io.read

@@ -3,17 +3,21 @@ package espinallib.zipcpu.blackbox
 import espinallib.common.GenUtils
 import spinal.core._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4SpecRenamer}
-import spinal.lib.bus.amba4.axilite.{AxiLite4, AxiLite4Config, AxiLite4SpecRenamer}
+import spinal.lib.bus.amba4.axilite.{
+  AxiLite4,
+  AxiLite4Config,
+  AxiLite4SpecRenamer
+}
 import spinal.lib.{master, slave}
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axidma.v
 class AxiDmaBlackBox(
-                      idWidth: Int,
-                      addrWidth: Int,
-                      dataWidth: Int,
-                      unaligned: Boolean,
-                      wrapMem: Boolean
-                    ) extends BlackBox {
+    idWidth: Int,
+    addrWidth: Int,
+    dataWidth: Int,
+    unaligned: Boolean,
+    wrapMem: Boolean
+) extends BlackBox {
 
   val io = new Bundle {
     val S_AXI_ACLK = in(Bool)
@@ -117,14 +121,19 @@ class AxiDmaBlackBox(
 
 // wrapper
 class AxiDma(
-              idWidth: Int = 1,
-              addrWidth: Int = 32,
-              dataWidth: Int = 32,
-              unaligned: Boolean = true,
-              wrapMem: Boolean = true
-            ) extends Component {
-  val axiCfg = Axi4Config(idWidth = idWidth, addressWidth = addrWidth, dataWidth = dataWidth)
-  val axiLiteCfg = AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
+    idWidth: Int = 1,
+    addrWidth: Int = 32,
+    dataWidth: Int = 32,
+    unaligned: Boolean = true,
+    wrapMem: Boolean = true
+) extends Component {
+  val axiCfg = Axi4Config(
+    idWidth = idWidth,
+    addressWidth = addrWidth,
+    dataWidth = dataWidth
+  )
+  val axiLiteCfg =
+    AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
 
   val s = slave(AxiLite4(axiLiteCfg))
   val m = master(Axi4(axiCfg))

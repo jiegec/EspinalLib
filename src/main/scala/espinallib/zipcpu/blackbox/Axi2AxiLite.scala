@@ -4,17 +4,21 @@ import espinallib.common.GenUtils
 import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4SpecRenamer}
-import spinal.lib.bus.amba4.axilite.{AxiLite4, AxiLite4Config, AxiLite4SpecRenamer}
+import spinal.lib.bus.amba4.axilite.{
+  AxiLite4,
+  AxiLite4Config,
+  AxiLite4SpecRenamer
+}
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi2axilite.v
 class Axi2AxiLiteBlackBox(
-                           idWidth: Int,
-                           addrWidth: Int,
-                           dataWidth: Int,
-                           writes: Boolean,
-                           reads: Boolean,
-                           log2Size: Int
-                         ) extends BlackBox {
+    idWidth: Int,
+    addrWidth: Int,
+    dataWidth: Int,
+    writes: Boolean,
+    reads: Boolean,
+    log2Size: Int
+) extends BlackBox {
 
   val io = new Bundle {
     val S_AXI_ACLK = in(Bool)
@@ -113,20 +117,26 @@ class Axi2AxiLiteBlackBox(
   addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
   GenerationFlags.formal {
     addRTLPath("./submodules/wb2axip/bench/formal/faxil_master.v")
+    addRTLPath("./submodules/wb2axip/bench/formal/faxi_slave.v")
   }
 }
 
 // wrapper
 class Axi2AxiLite(
-                   idWidth: Int = 2,
-                   addrWidth: Int = 6,
-                   dataWidth: Int = 32,
-                   writes: Boolean = true,
-                   reads: Boolean = true,
-                   log2Size: Int = 4
-                 ) extends Component {
-  val axiCfg = Axi4Config(idWidth = idWidth, addressWidth = addrWidth, dataWidth = dataWidth)
-  val axiLiteCfg = AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
+    idWidth: Int = 2,
+    addrWidth: Int = 6,
+    dataWidth: Int = 32,
+    writes: Boolean = true,
+    reads: Boolean = true,
+    log2Size: Int = 4
+) extends Component {
+  val axiCfg = Axi4Config(
+    idWidth = idWidth,
+    addressWidth = addrWidth,
+    dataWidth = dataWidth
+  )
+  val axiLiteCfg =
+    AxiLite4Config(addressWidth = addrWidth, dataWidth = dataWidth)
 
   val s = slave(Axi4(axiCfg))
   val m = master(AxiLite4(axiLiteCfg))

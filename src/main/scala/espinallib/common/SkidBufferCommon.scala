@@ -9,8 +9,8 @@ import spinal.lib.{Stream, master, slave}
 // https://www.cs.upc.edu/~jordicf/gavina/BIB/files/PhD_Galceran.pdf
 
 class SkidBufferCommon[T <: Data](
-                                   gen: => T
-                                 ) extends Component {
+    gen: => T
+) extends Component {
   val io = new Bundle {
     val s = slave(Stream(gen))
     val m = master(Stream(gen))
@@ -24,4 +24,3 @@ class SkidBufferCommon[T <: Data](
   io.s.flowContinuously(4)
   io.m.flowContinuously(4)
 }
-

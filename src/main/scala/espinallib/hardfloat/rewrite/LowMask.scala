@@ -19,13 +19,12 @@ object LowMask {
       val lsbs = in(in.getWidth - 2 downto 0)
       if (mid < topBound) {
         if (mid <= bottomBound) {
-          Mux(msb,
-            LowMask(lsbs, topBound - mid, bottomBound - mid),
-            U(0)
-          )
+          Mux(msb, LowMask(lsbs, topBound - mid, bottomBound - mid), U(0))
         } else {
-          Mux(msb,
-            Cat(LowMask(lsbs, topBound - mid, 0),
+          Mux(
+            msb,
+            Cat(
+              LowMask(lsbs, topBound - mid, 0),
               U((BigInt(1) << (mid - bottomBound).toInt) - 1)
             ).asUInt,
             LowMask(lsbs, mid, bottomBound)

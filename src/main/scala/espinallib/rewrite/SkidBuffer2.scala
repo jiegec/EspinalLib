@@ -10,8 +10,8 @@ object SkidBuffer2State extends SpinalEnum {
 // Skid buffer from http://fpgacpu.ca/fpga/Pipeline_Skid_Buffer.html
 // Has two buffers, all output signals(io.s.ready, io.m.valid and io.m.payload) are registered
 class SkidBuffer2[T <: Data](
-                              gen: => T
-                            ) extends SkidBufferCommon(gen) {
+    gen: => T
+) extends SkidBufferCommon(gen) {
   val dataBufferWE = Bool
   val dataWidth = widthOf(gen)
   val dataBufferReg = Reg(Bits(dataWidth bits)) init (0)

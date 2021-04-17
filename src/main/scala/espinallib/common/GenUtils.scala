@@ -8,7 +8,7 @@ trait GenUtils extends App {
     val verilog = SpinalConfig(
       netlistFileName = netlistName match {
         case null => null
-        case s => s"${s}.v"
+        case s    => s"${s}.v"
       }
     )
     verilog.generateVerilog(gen)
@@ -20,7 +20,7 @@ trait GenUtils extends App {
       ),
       netlistFileName = netlistName match {
         case null => null
-        case s => s"${s}.sv"
+        case s    => s"${s}.sv"
       }
     )
     val report = formal.includeFormal.generateSystemVerilog(gen)
