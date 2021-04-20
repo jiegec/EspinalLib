@@ -50,7 +50,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   val occupancy = RegInit(U(0, (idxWidth + 1) bits))
   io.credit := U(count, (idxWidth + 1) bits) - occupancy
 
-  val empty = occupancy === 0
+  val empty = ~occupancy.orR
 
   val readEvent =
     ~empty & io.downstream.valid && io.downstream.action === BuffetAction.Read
@@ -62,7 +62,8 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
 
   val idxValid = io.downstream.idxOrSize < occupancy
 
-  io.fill.ready := io.credit =/= 0
+  // non zero
+  io.fill.ready := io.credit.orR
   when(io.fill.valid) {
     memory.write(tail.resize(idxWidth bits), io.fill.payload)
     tail := tail + 1
@@ -82,8 +83,8 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   state.simPublic()
 
   val readWriteIdx = UInt(idxWidth bits)
+  readWriteIdx.assignDontCare()
   val writeEnable = False
-  readWriteIdx := 0
   val memRead =
     memory.readWriteSync(readWriteIdx, io.downstream.data, True, writeEnable)
   val readIdxStage = RegInit(U(0, idxWidth + 1 bits))
@@ -139,9 +140,10 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   switch(state) {
     is(BuffetState.sWait) {
       io.downstream.ready := False
+      // improve timing
+      readIdxStream.payload := readIdxStage.resized
       when(io.fill.fire && readIdxStage === tail) {
         // data is available
-        readIdxStream.payload := readIdxStage.resized
         readIdxStream.valid := True
         when(readIdxStream.ready) {
           state := BuffetState.sReady
@@ -151,14 +153,13 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   }
 
   // readIdx -> readData
-  val readDataStage = RegInit(B(0, dataWidth bits))
+  val readDataStage = Reg(Bits(dataWidth bits))
   val readDataValid = RegInit(False)
   val fireStage = RegNext(readIdxStream.fire)
   val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail)
   val fillDataStage = RegNext(io.fill.payload)
 
   readIdxStream.ready := False
-  readDataStream.payload := 0
   // backpressure
   when(readDataStream.ready && ~readDataValid) {
     readIdxStream.ready := True
@@ -174,8 +175,8 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
     readOut := fillDataStage
   }
 
+  readDataStream.payload.assignDontCare()
   readDataStream.valid := fireStage || readDataValid
-
   when(readDataValid) {
     readDataStream.payload := readDataStage
   } elsewhen (fireStage) {
@@ -201,5 +202,11 @@ object BuffetVerilog extends GenUtils {
 object BuffetBench extends VerilogBench {
   bench(
     new Buffet(3, 32)
+  )
+}
+
+object BuffetLargeBench extends VerilogBench {
+  bench(
+    new Buffet(6, 256)
   )
 }
