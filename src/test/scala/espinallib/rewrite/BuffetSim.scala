@@ -22,6 +22,7 @@ class BuffetSim extends AnyFunSuite {
         new Buffet(3, 32)
       ) { dut =>
         dut.clockDomain.forkStimulus(period = 10)
+        dut.clockDomain.waitRisingEdge(1)
 
         val done = new AtomicBoolean()
         val data = new util.ArrayList[Int]()

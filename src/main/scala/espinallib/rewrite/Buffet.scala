@@ -1,6 +1,6 @@
 package espinallib.rewrite
 
-import espinallib.common.GenUtils
+import espinallib.common.{GenUtils, VerilogBench}
 import spinal.core._
 import spinal.core.sim.SimDataPimper
 import spinal.lib._
@@ -88,7 +88,8 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
     memory.readWriteSync(readWriteIdx, io.downstream.data, True, writeEnable)
   val readIdxStage = RegInit(U(0, idxWidth + 1 bits))
 
-  readIdxStream.payload := 0
+  // improve timing
+  readIdxStream.payload.assignDontCare()
   readIdxStream.valid := False
 
   io.downstream.ready := False
@@ -109,6 +110,9 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
     is(BuffetAction.Read) {
       switch(state) {
         is(BuffetState.sReady) {
+          // calculate address early to improve timing
+          readIdxStream.payload := (io.downstream.idxOrSize + head)
+            .resize(idxWidth bits)
           when(~readIdxStream.ready) {
             // back pressure
             io.downstream.ready := False
@@ -119,8 +123,6 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
                 idxValid || (io.fill.fire && io.downstream.idxOrSize === occupancy)
               ) {
                 // no stall
-                readIdxStream.payload := (io.downstream.idxOrSize + head)
-                  .resize(idxWidth bits)
                 readIdxStream.valid := True
               } otherwise {
                 // stall, wait for data
@@ -192,6 +194,12 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
 
 object BuffetVerilog extends GenUtils {
   work(
+    new Buffet(3, 32)
+  )
+}
+
+object BuffetBench extends VerilogBench {
+  bench(
     new Buffet(3, 32)
   )
 }
