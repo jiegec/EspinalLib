@@ -4,6 +4,7 @@ import espinallib.common.{GenUtils, VerilogBench}
 import spinal.core._
 import spinal.core.sim.SimDataPimper
 import spinal.lib._
+import spinal.lib.eda.bench.Bench
 
 object BuffetAction extends SpinalEnum {
   val Read, Update, Shrink = newElement()
@@ -92,6 +93,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   // improve timing
   readIdxStream.payload.assignDontCare()
   readIdxStream.valid := False
+  readWriteIdx := readIdxStream.payload
 
   io.downstream.ready := False
   switch(io.downstream.action) {
@@ -165,10 +167,6 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
     readIdxStream.ready := True
   }
 
-  when(readIdxStream.fire) {
-    readWriteIdx := readIdxStream.payload
-  }
-
   // handle fill and read on the same cycle
   val readOut = memRead
   when(fillStage) {
@@ -207,6 +205,8 @@ object BuffetBench extends VerilogBench {
 
 object BuffetLargeBench extends VerilogBench {
   bench(
-    new Buffet(6, 256)
+    Bench.compressIo(
+      new Buffet(6, 128)
+    )
   )
 }
