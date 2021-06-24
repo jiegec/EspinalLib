@@ -12,6 +12,6 @@ object OrReduceBy4 {
     }
     reducedVec(reducedWidth - 1) :=
       in(in.getWidth - 1 downto (reducedWidth - 1) * 4).orR
-    Cat(reducedVec).asUInt
+    reducedVec.asBits.asUInt
   }
 }
