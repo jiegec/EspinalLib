@@ -14,12 +14,12 @@ import java.util
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BuffetSim extends AnyFunSuite {
-  test("Buffet") {
+class BuffetsSim extends AnyFunSuite {
+  test("Buffets") {
     SimConfig.withWave.withIVerilog
       .addSimulatorFlag("-g2012")
       .doSim(
-        new Buffet(3, 32)
+        new Buffets(3, 32)
       ) { dut =>
         dut.clockDomain.forkStimulus(period = 10)
         dut.clockDomain.waitRisingEdge(1)
@@ -48,11 +48,11 @@ class BuffetSim extends AnyFunSuite {
               dut.io.downstream.ready.toBoolean && dut.io.downstream.valid.toBoolean
             ) {
               val idxOrSize = dut.io.downstream.idxOrSize.toInt
-              if (dut.io.downstream.action.toEnum == BuffetAction.Read) {
+              if (dut.io.downstream.action.toEnum == BuffetsAction.Read) {
                 printf(s"Read: ${idxOrSize}\n")
                 readAddress.addLast(idxOrSize)
               } else if (
-                dut.io.downstream.action.toEnum == BuffetAction.Update
+                dut.io.downstream.action.toEnum == BuffetsAction.Update
               ) {
                 printf(
                   s"Update: ${dut.io.downstream.idxOrSize.toInt} ${dut.io.downstream.data.toInt}\n"
@@ -64,7 +64,7 @@ class BuffetSim extends AnyFunSuite {
                   )
                 }
               } else if (
-                dut.io.downstream.action.toEnum == BuffetAction.Shrink
+                dut.io.downstream.action.toEnum == BuffetsAction.Shrink
               ) {
                 val shrink = dut.io.downstream.idxOrSize.toInt
                 data.synchronized {
@@ -99,14 +99,14 @@ class BuffetSim extends AnyFunSuite {
 
         // read should block
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 0
         dut.clockDomain.waitSamplingWhere {
           dut.io.downstream.ready.toBoolean
         }
         dut.io.downstream.valid #= false
         dut.clockDomain.waitRisingEdge(10)
-        assert(dut.state.toEnum == BuffetState.sWait)
+        assert(dut.state.toEnum == BuffetsState.sWait)
 
         // fill
         dut.io.fill.valid #= true
@@ -123,7 +123,7 @@ class BuffetSim extends AnyFunSuite {
 
         // read again should not block
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 0
         dut.clockDomain.waitRisingEdge()
         dut.io.downstream.valid #= false
@@ -143,7 +143,7 @@ class BuffetSim extends AnyFunSuite {
 
         // read continuously should not block
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 0
         dut.clockDomain.waitRisingEdge()
         for (i <- 1 until 4) {
@@ -157,7 +157,7 @@ class BuffetSim extends AnyFunSuite {
 
         // test backpressure
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 0
         dut.io.readData.ready #= false
         dut.clockDomain.waitRisingEdge()
@@ -177,12 +177,12 @@ class BuffetSim extends AnyFunSuite {
 
         // shrink then read
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Shrink
+        dut.io.downstream.action #= BuffetsAction.Shrink
         dut.io.downstream.idxOrSize #= 1
         dut.clockDomain.waitSamplingWhere {
           dut.io.downstream.ready.toBoolean
         }
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 0
         dut.clockDomain.waitSamplingWhere {
           dut.io.downstream.ready.toBoolean
@@ -208,7 +208,7 @@ class BuffetSim extends AnyFunSuite {
 
         // read last element
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.io.downstream.idxOrSize #= 7
         dut.io.readData.ready #= false
         dut.clockDomain.waitSamplingWhere {
@@ -223,7 +223,7 @@ class BuffetSim extends AnyFunSuite {
 
         // update last element
         dut.io.downstream.valid #= true
-        dut.io.downstream.action #= BuffetAction.Update
+        dut.io.downstream.action #= BuffetsAction.Update
         dut.io.downstream.idxOrSize #= 7
         dut.io.downstream.data #= 0
         dut.io.readData.ready #= false
@@ -232,7 +232,7 @@ class BuffetSim extends AnyFunSuite {
         }
 
         // read last element
-        dut.io.downstream.action #= BuffetAction.Read
+        dut.io.downstream.action #= BuffetsAction.Read
         dut.clockDomain.waitSamplingWhere {
           dut.io.downstream.ready.toBoolean
         }
