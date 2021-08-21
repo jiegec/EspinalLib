@@ -4,6 +4,8 @@ import spinal.core._
 import spinal.lib._
 import espinallib.common.GenUtils
 
+// unsigned adder
+// from LSB to MSB
 class Adder extends Component {
   val io = new Bundle {
     val a = in(UInt(1 bits))
