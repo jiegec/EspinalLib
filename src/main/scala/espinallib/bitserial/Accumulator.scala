@@ -3,6 +3,7 @@ package espinallib.bitserial
 import spinal.core._
 import spinal.lib._
 import espinallib.common.GenUtils
+import espinallib.common.VerilogBench
 
 // accumulator
 // from LSB to MSB
@@ -35,4 +36,10 @@ class Accumulator(n: Int) extends Component {
 
 object AccumulatorVerilog extends GenUtils {
   work(new Accumulator(16))
+}
+
+object AccumulatorBench extends VerilogBench {
+  bench(
+    new Accumulator(16)
+  )
 }

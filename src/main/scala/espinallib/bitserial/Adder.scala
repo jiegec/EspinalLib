@@ -3,6 +3,7 @@ package espinallib.bitserial
 import spinal.core._
 import spinal.lib._
 import espinallib.common.GenUtils
+import espinallib.common.VerilogBench
 
 // unsigned adder
 // from LSB to MSB
@@ -23,4 +24,10 @@ class Adder extends Component {
 
 object AdderVerilog extends GenUtils {
   work(new Adder())
+}
+
+object AdderBench extends VerilogBench {
+  bench(
+    new Adder()
+  )
 }
