@@ -109,12 +109,12 @@ class AxiLiteXbarBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/axilxbar.v")
-  addRTLPath("./submodules/wb2axip/rtl/addrdecode.v")
-  addRTLPath("./submodules/wb2axip/rtl/skidbuffer.v")
+  addRTLPath("/wb2axip/rtl/axilxbar.v")
+  addRTLPath("/wb2axip/rtl/addrdecode.v")
+  addRTLPath("/wb2axip/rtl/skidbuffer.v")
   GenerationFlags.formal {
-    addRTLPath("./submodules/wb2axip/bench/formal/faxil_master.v")
-    addRTLPath("./submodules/wb2axip/bench/formal/faxil_slave.v")
+    addRTLPath("/wb2axip/bench/formal/faxil_master.v")
+    addRTLPath("/wb2axip/bench/formal/faxil_slave.v")
   }
 }
 
