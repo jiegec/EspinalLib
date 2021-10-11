@@ -9,6 +9,7 @@ import spinal.lib.bus.amba4.axilite.{
   AxiLite4Config,
   AxiLite4SpecRenamer
 }
+import espinallib.common.Resource
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi2axilite.v
 class Axi2AxiLiteBlackBox(
@@ -111,13 +112,13 @@ class Axi2AxiLiteBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/axi2axilite.v")
-  addRTLPath("./submodules/wb2axip/rtl/skidbuffer.v")
-  addRTLPath("./submodules/wb2axip/rtl/sfifo.v")
-  addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
+  addRTLPath(Resource.path("/wb2axip/rtl/axi2axilite.v"))
+  addRTLPath(Resource.path("/wb2axip/rtl/skidbuffer.v"))
+  addRTLPath(Resource.path("/wb2axip/rtl/sfifo.v"))
+  addRTLPath(Resource.path("/wb2axip/rtl/axi_addr.v"))
   GenerationFlags.formal {
-    addRTLPath("./submodules/wb2axip/bench/formal/faxil_master.v")
-    addRTLPath("./submodules/wb2axip/bench/formal/faxi_slave.v")
+    addRTLPath(Resource.path("/wb2axip/bench/formal/faxil_master.v"))
+    addRTLPath(Resource.path("/wb2axip/bench/formal/faxi_slave.v"))
   }
 }
 

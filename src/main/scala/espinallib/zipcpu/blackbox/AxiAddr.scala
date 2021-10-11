@@ -2,6 +2,7 @@ package espinallib.zipcpu.blackbox
 
 import espinallib.common.GenUtils
 import spinal.core._
+import espinallib.common.Resource
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axi_addr.v
 class AxiAddrBlackBox(
@@ -27,7 +28,7 @@ class AxiAddrBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
+  addRTLPath(Resource.path("/wb2axip/rtl/axi_addr.v"))
 }
 
 // wrapper for axi_addr

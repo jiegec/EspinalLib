@@ -6,30 +6,30 @@ import spinal.core.sim.SimDataPimper
 import spinal.lib._
 import spinal.lib.eda.bench.Bench
 
-object BuffetAction extends SpinalEnum {
+object BuffetsAction extends SpinalEnum {
   val Read, Update, Shrink = newElement()
 }
 
-object BuffetState extends SpinalEnum {
+object BuffetsState extends SpinalEnum {
   val sReady, sWait, sStall = newElement()
 }
 
-class BuffetDownstream(idxWidth: Int, dataWidth: Int) extends Bundle {
-  val action = BuffetAction()
+class BuffetsDownstream(idxWidth: Int, dataWidth: Int) extends Bundle {
+  val action = BuffetsAction()
   val idxOrSize = UInt(idxWidth bits)
   val data = Bits(dataWidth bits)
 }
 
 // simplified version of buffet
 // https://github.com/cwfletcher/buffets/blob/master/dut/buffet_control.v
-class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
+class Buffets(idxWidth: Int, dataWidth: Int) extends Component {
   val io = new Bundle {
     val fill = slave(Stream(Bits(dataWidth bits)))
 
     // elements left
     val credit = out(UInt((idxWidth + 1) bits))
 
-    val downstream = slave(Stream(new BuffetDownstream(idxWidth, dataWidth)))
+    val downstream = slave(Stream(new BuffetsDownstream(idxWidth, dataWidth)))
 
     val readData = master(Stream(Bits(dataWidth bits)))
   }
@@ -54,12 +54,12 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   val empty = ~occupancy.orR
 
   val readEvent =
-    ~empty & io.downstream.valid && io.downstream.action === BuffetAction.Read
+    ~empty & io.downstream.valid && io.downstream.action === BuffetsAction.Read
   val shrinkEvent =
-    ~empty & io.downstream.valid && io.downstream.action === BuffetAction.Shrink
+    ~empty & io.downstream.valid && io.downstream.action === BuffetsAction.Shrink
   val fillEvent = io.fill.valid
   val updateEvent =
-    ~empty & io.downstream.valid && io.downstream.action === BuffetAction.Update
+    ~empty & io.downstream.valid && io.downstream.action === BuffetsAction.Update
 
   val idxValid = io.downstream.idxOrSize < occupancy
 
@@ -75,12 +75,12 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   when(io.fill.valid) {
     occupancyAdd := 1
   }
-  when(io.downstream.valid && io.downstream.action === BuffetAction.Shrink) {
+  when(io.downstream.valid && io.downstream.action === BuffetsAction.Shrink) {
     occupancySub := io.downstream.idxOrSize.resized
   }
   occupancy := occupancy + occupancyAdd - occupancySub
 
-  val state = RegInit(BuffetState.sReady)
+  val state = RegInit(BuffetsState.sReady)
   state.simPublic()
 
   val readWriteIdx = UInt(idxWidth bits)
@@ -97,22 +97,22 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
 
   io.downstream.ready := False
   switch(io.downstream.action) {
-    is(BuffetAction.Update) {
+    is(BuffetsAction.Update) {
       io.downstream.ready := True
       when(io.downstream.valid) {
         writeEnable := True
         readWriteIdx := (io.downstream.idxOrSize + head).resize(idxWidth bits)
       }
     }
-    is(BuffetAction.Shrink) {
+    is(BuffetsAction.Shrink) {
       io.downstream.ready := True
       when(io.downstream.valid) {
         head := head + io.downstream.idxOrSize
       }
     }
-    is(BuffetAction.Read) {
+    is(BuffetsAction.Read) {
       switch(state) {
-        is(BuffetState.sReady) {
+        is(BuffetsState.sReady) {
           // calculate address early to improve timing
           readIdxStream.payload := (io.downstream.idxOrSize + head)
             .resize(idxWidth bits)
@@ -129,7 +129,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
                 readIdxStream.valid := True
               } otherwise {
                 // stall, wait for data
-                state := BuffetState.sWait
+                state := BuffetsState.sWait
                 readIdxStage := (io.downstream.idxOrSize + head).resized
               }
             }
@@ -140,7 +140,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   }
 
   switch(state) {
-    is(BuffetState.sWait) {
+    is(BuffetsState.sWait) {
       io.downstream.ready := False
       // improve timing
       readIdxStream.payload := readIdxStage.resized
@@ -148,7 +148,7 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
         // data is available
         readIdxStream.valid := True
         when(readIdxStream.ready) {
-          state := BuffetState.sReady
+          state := BuffetsState.sReady
         }
       }
     }
@@ -191,22 +191,22 @@ class Buffet(idxWidth: Int, dataWidth: Int) extends Component {
   }
 }
 
-object BuffetVerilog extends GenUtils {
+object BuffetsVerilog extends GenUtils {
   work(
-    new Buffet(3, 32)
+    new Buffets(3, 32)
   )
 }
 
-object BuffetBench extends VerilogBench {
+object BuffetsBench extends VerilogBench {
   bench(
-    new Buffet(3, 32)
+    new Buffets(3, 32)
   )
 }
 
-object BuffetLargeBench extends VerilogBench {
+object BuffetsLargeBench extends VerilogBench {
   bench(
     Bench.compressIo(
-      new Buffet(6, 128)
+      new Buffets(6, 128)
     )
   )
 }

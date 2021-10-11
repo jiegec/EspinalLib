@@ -2,6 +2,7 @@ package espinallib.zipcpu.blackbox
 
 import espinallib.common.GenUtils
 import spinal.core._
+import espinallib.common.Resource
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/sfifo.v
 class SFifoBlackBox(
@@ -40,7 +41,7 @@ class SFifoBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/sfifo.v")
+  addRTLPath(Resource.path("/wb2axip/rtl/sfifo.v"))
 }
 
 // wrapper for sfifo

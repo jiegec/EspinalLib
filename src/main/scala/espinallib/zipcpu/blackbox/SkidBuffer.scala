@@ -2,6 +2,7 @@ package espinallib.zipcpu.blackbox
 
 import espinallib.common.{GenUtils, SkidBufferCommon}
 import spinal.core._
+import espinallib.common.Resource
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/skidbuffer.v
 class SkidBufferBlackBox(
@@ -34,7 +35,7 @@ class SkidBufferBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/skidbuffer.v")
+  addRTLPath(Resource.path("/wb2axip/rtl/skidbuffer.v"))
 }
 
 // wrapper for skidbuffer

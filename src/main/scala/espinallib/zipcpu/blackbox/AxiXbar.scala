@@ -4,6 +4,7 @@ import espinallib.common.GenUtils
 import spinal.core._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4SpecRenamer}
 import spinal.lib.{master, slave}
+import espinallib.common.Resource
 
 // blackbox of https://github.com/ZipCPU/wb2axip/blob/master/rtl/axixbar.v
 class AxiXbarBlackBox(
@@ -142,12 +143,12 @@ class AxiXbarBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/axixbar.v")
-  addRTLPath("./submodules/wb2axip/rtl/addrdecode.v")
-  addRTLPath("./submodules/wb2axip/rtl/skidbuffer.v")
+  addRTLPath(Resource.path("/wb2axip/rtl/axixbar.v"))
+  addRTLPath(Resource.path("/wb2axip/rtl/addrdecode.v"))
+  addRTLPath(Resource.path("/wb2axip/rtl/skidbuffer.v"))
   GenerationFlags.formal {
-    addRTLPath("./submodules/wb2axip/bench/formal/faxi_master.v")
-    addRTLPath("./submodules/wb2axip/bench/formal/faxi_slave.v")
+    addRTLPath(Resource.path("/wb2axip/bench/formal/faxi_master.v"))
+    addRTLPath(Resource.path("/wb2axip/bench/formal/faxi_slave.v"))
   }
 }
 

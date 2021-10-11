@@ -111,11 +111,11 @@ class AxiDmaBlackBox(
 
   noIoPrefix()
 
-  addRTLPath("./submodules/wb2axip/rtl/axidma.v")
-  addRTLPath("./submodules/wb2axip/rtl/axi_addr.v")
-  addRTLPath("./submodules/wb2axip/rtl/sfifo.v")
+  addRTLPath("/wb2axip/rtl/axidma.v")
+  addRTLPath("/wb2axip/rtl/axi_addr.v")
+  addRTLPath("/wb2axip/rtl/sfifo.v")
   GenerationFlags.formal {
-    addRTLPath("./submodules/wb2axip/bench/formal/faxil_slave.v")
+    addRTLPath("/wb2axip/bench/formal/faxil_slave.v")
   }
 }
 
