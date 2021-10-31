@@ -9,6 +9,7 @@ target/
 simWorkspace/
 edaWorkspace/
 tmp/
+out/
 *.vcd
 *.v
 *.sv
