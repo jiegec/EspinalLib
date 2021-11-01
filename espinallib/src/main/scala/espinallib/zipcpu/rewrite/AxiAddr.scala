@@ -159,7 +159,7 @@ class AxiAddr(addrWidth: Int, dataWidth: Int) extends Component {
     io.nextAddr := nextAddr
   }
 
-  doFormal { (outerReset, pastValid) =>
+  doFormal { (_, _) =>
     // The size of any transfer must not exceed the data bus width of either agent in the transaction.
     assume(
       (U(1) << io.size) <= dataWidth / 8

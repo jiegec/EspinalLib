@@ -60,7 +60,7 @@ package object formal {
     ): Unit = {
       doFormal { (outerReset, pastValid) =>
         // data flows in cycles continuously
-        var payload: Data = if (forcePayloadDifferent) stream.payload else null
+        val payload: Data = if (forcePayloadDifferent) stream.payload else null
         cover(
           pastValid && genPast(pastValid, null, cycles) && genPast(
             ~outerReset,
@@ -91,7 +91,7 @@ package object formal {
           Component.current,
           clockDomain.readResetWire
         )
-        val initialArea = new ClockingArea(FormalUtils.initialClockDomain) {
+        new ClockingArea(FormalUtils.initialClockDomain) {
           // don't use $pass in first cycle
           val pastValid = validCache.get(Component.current) match {
             case Some(pastValid) => pastValid

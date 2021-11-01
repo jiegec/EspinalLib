@@ -161,7 +161,6 @@ class SyncFifo[T <: Data](
   doFormal { (outerReset, pastValid) =>
     when(!outerReset) {
       val fFill = wrAddr - rdAddr
-      val fEmpty = wrAddr === rdAddr
       val fNext = rdAddr + 1
 
       assert(fFill <= size)

@@ -2,7 +2,6 @@ package espinallib.bitserial
 
 import spinal.core.sim.{
   SimBitVectorPimper,
-  SimBoolPimper,
   SimConfig,
   SimClockDomainHandlePimper
 }

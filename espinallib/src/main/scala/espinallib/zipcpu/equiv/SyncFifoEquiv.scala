@@ -46,7 +46,7 @@ class SyncFifoEquiv(
   ours.io.wData := io.wData
   ours.io.read := io.read
 
-  doFormal { (outerReset, pastValid) =>
+  doFormal { (outerReset, _) =>
     when(~outerReset) {
       when(!Bool(readOnEmpty) && theirs.io.empty) {
         assume(!io.read)

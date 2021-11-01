@@ -35,7 +35,7 @@ class AxiAddrEquiv(
   ours.io.burst := io.burst
   ours.io.len := io.len
 
-  doFormal { (outerReset, pastValid) =>
+  doFormal { (outerReset, _) =>
     when(~outerReset) {
       assert(theirs.io.nextAddr === ours.io.nextAddr)
     }
