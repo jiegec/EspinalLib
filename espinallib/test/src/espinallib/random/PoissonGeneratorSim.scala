@@ -63,7 +63,7 @@ class PoissonGeneratorSim extends AnyFunSuite {
           )
         }
         println(s"Expected: ${expected}")
-        assert(Math.abs(expected - lambda) < 0.1)
+        assert(Math.abs(expected - lambda) / lambda < 0.1)
       }
 
   }
