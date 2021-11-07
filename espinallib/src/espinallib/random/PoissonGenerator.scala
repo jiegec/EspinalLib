@@ -18,7 +18,6 @@ object PoissonGeneratorState extends SpinalEnum {
 
 class PoissonGenerator(
     counterWidth: Int,
-    lfsrPolynomial: Seq[PolynomialGF2],
     outputWidth: Int
 ) extends Component {
   val io = new Bundle {
@@ -27,7 +26,7 @@ class PoissonGenerator(
   }
 
   val rand = Bits(counterWidth bits)
-  val rng = new RNG(lfsrPolynomial)
+  val rng = new RNG32()
   rand := rng.io.random.resized
 
   val state = RegInit(PoissonGeneratorState.sReady)

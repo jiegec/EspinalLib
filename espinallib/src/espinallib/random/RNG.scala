@@ -5,6 +5,7 @@ import spinal.crypto.misc.LFSR
 import spinal.crypto.PolynomialGF2
 import scala.util.Random
 
+/** Generate RNG with a series of LFSR */
 class RNG(
     lfsrPolynomial: Seq[PolynomialGF2]
 ) extends Component {
@@ -13,6 +14,7 @@ class RNG(
     val random = out(Bits(maxOrder bits))
   }
 
+  Random.setSeed(0x12345678)
   val all_lfsr = for ((poly, i) <- lfsrPolynomial zipWithIndex) yield {
     // have different steps
     val lfsr_reg = RegInit(B(Random.nextInt(1 << poly.order), poly.order bits))
@@ -26,4 +28,22 @@ class RNG(
     lfsr_reg.resize(maxOrder bits)
   }
   io.random := all_lfsr.reduce(_ ^ _)
+}
+
+/** Barrel-shifted 96-bit LFSR. Paper: A. Veiga and E. Spinelli, "A pulse
+  * generator with poisson-exponential distribution for emulation of radioactive
+  * decay events," 2016 IEEE 7th Latin American Symposium on Circuits & Systems
+  * (LASCAS), 2016, pp. 31-34, doi: 10.1109/LASCAS.2016.7451002.
+  */
+class RNG32 extends Component {
+  val io = new Bundle {
+    val random = out(Bits(32 bits))
+  }
+
+  val lfsr = RegInit(B(0x12345678, 96 bits))
+  lfsr(95 downto 32) := lfsr(63 downto 0)
+  for (i <- 0 until 32) {
+    lfsr(31 - i) := (lfsr(95 - i) ^ lfsr(93 - i) ^ lfsr(48 - i) ^ lfsr(46 - i))
+  }
+  io.random := lfsr(31 downto 0)
 }

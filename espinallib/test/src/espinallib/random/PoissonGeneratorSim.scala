@@ -14,14 +14,11 @@ class PoissonGeneratorSim extends AnyFunSuite {
   test("PoissonGenerator") {
     val counterWidth = 16
     val outputWidth = 3
-    val polynomial_16bits = p"x^16 + x^14 + x^13 + x^11 + 1"
-    val polynomial_17bits = p"x^17 + x^14 + 1"
     SimConfig.withWave.withIVerilog
       .addSimulatorFlag("-g2012")
       .doSim(
         new PoissonGenerator(
           counterWidth,
-          Seq(polynomial_17bits, polynomial_16bits),
           outputWidth
         )
       ) { dut =>
