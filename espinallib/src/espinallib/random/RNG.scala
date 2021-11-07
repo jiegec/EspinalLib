@@ -6,7 +6,7 @@ import spinal.crypto.PolynomialGF2
 import scala.util.Random
 
 /** Generate RNG with a series of LFSR */
-class RNG(
+class LFSRRNG(
     lfsrPolynomial: Seq[PolynomialGF2]
 ) extends Component {
   val maxOrder = lfsrPolynomial.map((poly) => poly.order).max
@@ -35,15 +35,36 @@ class RNG(
   * decay events," 2016 IEEE 7th Latin American Symposium on Circuits & Systems
   * (LASCAS), 2016, pp. 31-34, doi: 10.1109/LASCAS.2016.7451002.
   */
-class RNG32 extends Component {
+class LFSRRNG32 extends Component {
   val io = new Bundle {
     val random = out(Bits(32 bits))
   }
 
-  val lfsr = RegInit(B(0x12345678, 96 bits))
+  Random.setSeed(0x12345678)
+  val lfsr = RegInit(B(Random.nextInt(), 96 bits))
   lfsr(95 downto 32) := lfsr(63 downto 0)
   for (i <- 0 until 32) {
     lfsr(31 - i) := (lfsr(95 - i) ^ lfsr(93 - i) ^ lfsr(48 - i) ^ lfsr(46 - i))
   }
   io.random := lfsr(31 downto 0)
+}
+
+/** Tausworthe generator. Paper: A. Veiga and E. Spinelli, "A pulse generator
+  * with poisson-exponential distribution for emulation of radioactive decay
+  * events," 2016 IEEE 7th Latin American Symposium on Circuits & Systems
+  * (LASCAS), 2016, pp. 31-34, doi: 10.1109/LASCAS.2016.7451002.
+  */
+class TauswortheRNG32 extends Component {
+  val io = new Bundle {
+    val random = out(Bits(32 bits))
+  }
+
+  Random.setSeed(0x12345678)
+  val s0 = RegInit(B(Random.nextInt(0x7fffffff), 32 bits))
+  val s1 = RegInit(B(Random.nextInt(0x7fffffff), 32 bits))
+  val s2 = RegInit(B(Random.nextInt(0x7fffffff), 32 bits))
+  s0 := (((s0 & 0xfffffffeL) << 12) ^ (((s0 << 13).resized ^ s0) >> 19).resized).resized;
+  s1 := (((s1 & 0xfffffff8L) << 4) ^ (((s1 << 2).resized ^ s1) >> 25).resized).resized;
+  s2 := (((s2 & 0xfffffff0L) << 12) ^ (((s2 << 3).resized ^ s2) >> 11).resized).resized;
+  io.random := s0 ^ s1 ^ s2
 }

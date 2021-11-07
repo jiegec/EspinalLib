@@ -26,7 +26,7 @@ class PoissonGenerator(
   }
 
   val rand = Bits(counterWidth bits)
-  val rng = new RNG32()
+  val rng = new LFSRRNG32()
   rand := rng.io.random.resized
 
   val state = RegInit(PoissonGeneratorState.sReady)
