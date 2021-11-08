@@ -7,7 +7,6 @@ import spinal.core.sim.{
   SimClockDomainHandlePimper
 }
 import org.scalatest.funsuite.AnyFunSuite
-import spinal.crypto._
 import scala.collection.mutable.ArrayBuffer
 
 class PoissonGeneratorSim extends AnyFunSuite {

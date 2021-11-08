@@ -2,7 +2,6 @@ package espinallib.random
 
 import spinal.core._
 import spinal.lib._
-import spinal.crypto.PolynomialGF2
 
 class PoissonGeneratorRequest(counterWidth: Int) extends Bundle {
   val threshold = UInt(counterWidth bits)
