@@ -64,3 +64,55 @@ class PoissonGenerator(
     }
   }
 }
+
+object PoissonGeneratorVectorState extends SpinalEnum {
+  val sReady, sAccumulate, sDone = newElement()
+}
+
+class PoissonGeneratorVector(
+    counterWidth: Int,
+    outputWidth: Int,
+    lanes: Int
+) extends Component {
+  val io = new Bundle {
+    val req = slave(
+      Stream(Vec(new PoissonGeneratorRequest(counterWidth), lanes))
+    )
+    val resp = master(
+      Stream(Vec(new PoissonGeneratorResponse(outputWidth), lanes))
+    )
+  }
+
+  val inner = for (i <- 0 until lanes) yield {
+    val inner = new PoissonGenerator(counterWidth, outputWidth)
+    inner.io.req.threshold := io.req.payload(i).threshold
+    inner.io.req.valid := False
+    inner.io.resp.ready := False
+    io.resp.payload(i).res := inner.io.resp.res
+
+    inner
+  }
+
+  val state = RegInit(PoissonGeneratorVectorState.sReady)
+
+  io.req.ready := False
+  io.resp.valid := False
+
+  switch(state) {
+    is(PoissonGeneratorVectorState.sReady) {
+      // until all ready
+      io.req.ready := inner.map((m) => m.io.req.ready).reduce(_ & _)
+      when(io.req.fire) {
+        inner.foreach((m) => m.io.req.valid := True)
+      }
+      state := PoissonGeneratorVectorState.sAccumulate
+    }
+    is(PoissonGeneratorState.sAccumulate) {
+      io.resp.valid := inner.map((m) => m.io.resp.valid).reduce(_ & _)
+      when(io.resp.fire) {
+        inner.foreach((m) => m.io.resp.ready := True)
+      }
+      state := PoissonGeneratorVectorState.sReady
+    }
+  }
+}
