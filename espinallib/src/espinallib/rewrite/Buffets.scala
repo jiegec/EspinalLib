@@ -15,36 +15,36 @@ object BuffetsState extends SpinalEnum {
   val sReady, sWait, sStall = newElement()
 }
 
-class BuffetsDownstream(idxWidth: Int, dataWidth: Int) extends Bundle {
+class BuffetsDownstream[T <: Data](idxWidth: Int, gen: => T) extends Bundle {
   val action = BuffetsAction()
   val idxOrSize = UInt(idxWidth bits)
-  val data = Bits(dataWidth bits)
+  val data = gen
 }
 
 // simplified version of buffet
 // https://github.com/cwfletcher/buffets/blob/master/dut/buffet_control.v
-class Buffets(idxWidth: Int, dataWidth: Int) extends Component {
+class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
   val io = new Bundle {
-    val fill = slave(Stream(Bits(dataWidth bits)))
+    val fill = slave(Stream(gen))
 
     // elements left
     val credit = out(UInt((idxWidth + 1) bits))
 
-    val downstream = slave(Stream(new BuffetsDownstream(idxWidth, dataWidth)))
+    val downstream = slave(Stream(new BuffetsDownstream(idxWidth, gen)))
 
-    val readData = master(Stream(Bits(dataWidth bits)))
+    val readData = master(Stream(gen))
   }
 
   // pipeline:
   // downstream -> readIdx -> readData
 
-  val readDataStream = Stream(Bits(dataWidth bits))
+  val readDataStream = Stream(gen)
   readDataStream.s2mPipe() <> io.readData
 
   val readIdxStream = Stream(UInt(idxWidth bits))
 
   val count = 1 << idxWidth
-  val memory = Mem(Bits(dataWidth bits), count)
+  val memory = Mem(gen, count)
 
   // An extra bit to tell difference between empty and full
   val head = RegInit(U(0, (idxWidth + 1) bits))
@@ -156,7 +156,7 @@ class Buffets(idxWidth: Int, dataWidth: Int) extends Component {
   }
 
   // readIdx -> readData
-  val readDataStage = Reg(Bits(dataWidth bits))
+  val readDataStage = Reg(gen)
   val readDataValid = RegInit(False)
   val fireStage = RegNext(readIdxStream.fire)
   val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail)
@@ -194,20 +194,20 @@ class Buffets(idxWidth: Int, dataWidth: Int) extends Component {
 
 object BuffetsVerilog extends GenUtils {
   work(
-    new Buffets(3, 32)
+    new Buffets(3, Bits(32 bits))
   )
 }
 
 object BuffetsBench extends VerilogBench {
   bench(
-    new Buffets(3, 32)
+    new Buffets(3, Bits(32 bits))
   )
 }
 
 object BuffetsLargeBench extends VerilogBench {
   bench(
     Bench.compressIo(
-      new Buffets(6, 128)
+      new Buffets(6, Bits(128 bits))
     )
   )
 }

@@ -1,6 +1,7 @@
 package espinallib.rewrite
 
 import org.scalatest.funsuite.AnyFunSuite
+import spinal.core._
 import spinal.core.sim.{
   SimBitVectorPimper,
   SimBoolPimper,
@@ -19,7 +20,7 @@ class BuffetsSim extends AnyFunSuite {
     SimConfig.withWave.withIVerilog
       .addSimulatorFlag("-g2012")
       .doSim(
-        new Buffets(3, 32)
+        new Buffets(3, Bits(32 bits))
       ) { dut =>
         dut.clockDomain.forkStimulus(period = 10)
         dut.clockDomain.waitRisingEdge(1)
