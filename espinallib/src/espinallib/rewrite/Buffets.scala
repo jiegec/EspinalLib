@@ -41,7 +41,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
   val readDataStream = Stream(gen)
   readDataStream.s2mPipe() <> io.readData
 
-  val readIdxStream = Stream(UInt(idxWidth bits))
+  val readIdxStream = Stream(UInt(idxWidth + 1 bits))
 
   val count = 1 << idxWidth
   val memory = Mem(gen, count)
@@ -94,7 +94,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
   // improve timing
   readIdxStream.payload.assignDontCare()
   readIdxStream.valid := False
-  readWriteIdx := readIdxStream.payload
+  readWriteIdx := readIdxStream.payload.resized
 
   io.downstream.ready := False
   switch(io.downstream.action) {
@@ -115,8 +115,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
       switch(state) {
         is(BuffetsState.sReady) {
           // calculate address early to improve timing
-          readIdxStream.payload := (io.downstream.idxOrSize + head)
-            .resize(idxWidth bits)
+          readIdxStream.payload := io.downstream.idxOrSize + head
           when(~readIdxStream.ready) {
             // back pressure
             io.downstream.ready := False
@@ -144,7 +143,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
     is(BuffetsState.sWait) {
       io.downstream.ready := False
       // improve timing
-      readIdxStream.payload := readIdxStage.resized
+      readIdxStream.payload := readIdxStage
       when(io.fill.fire && readIdxStage === tail) {
         // data is available
         readIdxStream.valid := True
@@ -159,7 +158,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
   val readDataStage = Reg(gen)
   val readDataValid = RegInit(False)
   val fireStage = RegNext(readIdxStream.fire)
-  val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail.resize(idxWidth bits))
+  val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail)
   val fillDataStage = RegNext(io.fill.payload)
 
   readIdxStream.ready := False
