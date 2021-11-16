@@ -159,7 +159,7 @@ class Buffets[T <: Data](idxWidth: Int, gen: => T) extends Component {
   val readDataStage = Reg(gen)
   val readDataValid = RegInit(False)
   val fireStage = RegNext(readIdxStream.fire)
-  val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail)
+  val fillStage = RegNext(io.fill.fire && readIdxStream.payload === tail.resize(idxWidth bits))
   val fillDataStage = RegNext(io.fill.payload)
 
   readIdxStream.ready := False
