@@ -30,12 +30,6 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-    - name: Setup SpinalCrypto
-      run: |
-        git clone https://github.com/SpinalHDL/SpinalCrypto.git
-        cd SpinalCrypto
-        git checkout 6140d16e9bd4815f91c330cafaa6d5a328e0bc6d
-        sbt +publishLocal
     - uses: jodersky/setup-mill@master
       with:
         mill-version: 0.10.0

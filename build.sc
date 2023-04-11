@@ -11,8 +11,7 @@ val defaultVersions = Map(
   "scalatest" -> ("org.scalatest", "3.2.10", false),
   "spinalhdl-core" -> ("com.github.spinalhdl", "1.6.1", false),
   "spinalhdl-lib" -> ("com.github.spinalhdl", "1.6.1", false),
-  "spinalhdl-idsl-plugin" -> ("com.github.spinalhdl", "1.6.1", false),
-  "spinalhdl-crypto" -> ("com.github.spinalhdl", "1.1.1", false)
+  "spinalhdl-idsl-plugin" -> ("com.github.spinalhdl", "1.6.1", false)
 )
 
 def getVersion(dep: String) = {
@@ -35,8 +34,7 @@ object espinallib
     with PublishModule {
   override def ivyDeps = super.ivyDeps() ++ Agg(
     getVersion("spinalhdl-core"),
-    getVersion("spinalhdl-lib"),
-    getVersion("spinalhdl-crypto")
+    getVersion("spinalhdl-lib")
   )
 
   override def scalacPluginIvyDeps = super.scalacPluginIvyDeps() ++ Agg(
