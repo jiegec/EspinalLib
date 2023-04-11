@@ -3,7 +3,7 @@ import mill.scalalib.publish._
 import scalalib._
 import scalafmt._
 import coursier.maven.MavenRepository
-import $ivy.`com.goyeau::mill-scalafix_mill0.10:0.2.8`
+import $ivy.`com.goyeau::mill-scalafix_mill0.10:0.2.11`
 import com.goyeau.mill.scalafix.ScalafixModule
 
 // learned from https://github.com/OpenXiangShan/fudian/blob/main/build.sc
@@ -24,7 +24,7 @@ def getVersion(dep: String) = {
 }
 
 trait CommonModule extends ScalaModule {
-  def scalaVersion = "2.12.13"
+  def scalaVersion = "2.13.10"
 }
 
 object espinallib
@@ -41,9 +41,6 @@ object espinallib
     getVersion("spinalhdl-idsl-plugin")
   )
 
-  // for scalafix rules
-  override def scalacOptions =
-    Seq("-Ywarn-unused", "-Ywarn-adapted-args", "-deprecation")
   override def scalafixIvyDeps = Agg(
     ivy"com.github.liancheng::organize-imports:0.5.0"
   )
