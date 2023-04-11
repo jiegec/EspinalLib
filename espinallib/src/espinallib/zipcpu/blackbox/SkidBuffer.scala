@@ -13,15 +13,15 @@ class SkidBufferBlackBox(
 ) extends BlackBox {
 
   val io = new Bundle {
-    val i_clk = in(Bool)
-    val i_reset = in(Bool)
+    val i_clk = in(Bool())
+    val i_reset = in(Bool())
 
-    val i_valid = in(Bool)
-    val o_ready = out(Bool)
+    val i_valid = in(Bool())
+    val o_ready = out(Bool())
     val i_data = in(Bits(dataWidth bits))
 
-    val o_valid = out(Bool)
-    val i_ready = in(Bool)
+    val o_valid = out(Bool())
+    val i_ready = in(Bool())
     val o_data = out(Bits(dataWidth bits))
   }
 

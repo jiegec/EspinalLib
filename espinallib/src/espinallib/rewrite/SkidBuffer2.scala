@@ -13,15 +13,15 @@ object SkidBuffer2State extends SpinalEnum {
 class SkidBuffer2[T <: Data](
     gen: => T
 ) extends SkidBufferCommon(gen) {
-  val dataBufferWE = Bool
+  val dataBufferWE = Bool()
   val dataWidth = widthOf(gen)
   val dataBufferReg = Reg(Bits(dataWidth bits)) init (0)
   when(dataBufferWE) {
     dataBufferReg := io.s.payload.asBits
   }
 
-  val dataOutWE = Bool
-  val useBufferedData = Bool
+  val dataOutWE = Bool()
+  val useBufferedData = Bool()
   val selectedData = Bits(dataWidth bits)
 
   when(useBufferedData) {
@@ -39,11 +39,11 @@ class SkidBuffer2[T <: Data](
   val state = Reg(SkidBuffer2State) init (SkidBuffer2State.sEmpty)
   val stateNext = SkidBuffer2State.sEmpty()
 
-  val inputReadyReg = Reg(Bool) init (True)
+  val inputReadyReg = Reg(Bool()) init (True)
   inputReadyReg := stateNext =/= SkidBuffer2State.sFull
   io.s.ready := inputReadyReg
 
-  val outputValidReg = Reg(Bool) init (False)
+  val outputValidReg = Reg(Bool()) init (False)
   outputValidReg := stateNext =/= SkidBuffer2State.sEmpty
   io.m.valid := outputValidReg
 

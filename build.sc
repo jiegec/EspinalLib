@@ -9,9 +9,9 @@ import com.goyeau.mill.scalafix.ScalafixModule
 // learned from https://github.com/OpenXiangShan/fudian/blob/main/build.sc
 val defaultVersions = Map(
   "scalatest" -> ("org.scalatest", "3.2.10", false),
-  "spinalhdl-core" -> ("com.github.spinalhdl", "1.6.1", false),
-  "spinalhdl-lib" -> ("com.github.spinalhdl", "1.6.1", false),
-  "spinalhdl-idsl-plugin" -> ("com.github.spinalhdl", "1.6.1", false)
+  "spinalhdl-core" -> ("com.github.spinalhdl", "1.8.1", false),
+  "spinalhdl-lib" -> ("com.github.spinalhdl", "1.8.1", false),
+  "spinalhdl-idsl-plugin" -> ("com.github.spinalhdl", "1.8.1", false)
 )
 
 def getVersion(dep: String) = {
@@ -24,7 +24,7 @@ def getVersion(dep: String) = {
 }
 
 trait CommonModule extends ScalaModule {
-  def scalaVersion = "2.12.14"
+  def scalaVersion = "2.12.13"
 }
 
 object espinallib

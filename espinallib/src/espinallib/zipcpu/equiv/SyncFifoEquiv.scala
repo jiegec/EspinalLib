@@ -16,11 +16,11 @@ class SyncFifoEquiv(
 ) extends Component {
   val io = new Bundle {
     // write interface
-    val write = in(Bool)
+    val write = in(Bool())
     val wData = in(Bits(dataWidth bits))
 
     // read interface
-    val read = in(Bool)
+    val read = in(Bool())
   }
 
   val theirs =

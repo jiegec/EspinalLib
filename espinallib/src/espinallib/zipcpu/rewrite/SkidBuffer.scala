@@ -16,7 +16,7 @@ class SkidBuffer[T <: Data](
     lowPower: Boolean = false,
     outputReg: Boolean = true
 ) extends SkidBufferCommon(gen) {
-  val rValid = Reg(Bool) init (False)
+  val rValid = Reg(Bool()) init (False)
   val dataWidth = widthOf(gen)
   val rData = Reg(Bits(dataWidth bits))
 
@@ -43,7 +43,7 @@ class SkidBuffer[T <: Data](
   io.s.ready := !rValid
 
   if (outputReg) {
-    val oValid = Reg(Bool).init(False).setName("oValid")
+    val oValid = Reg(Bool()).init(False).setName("oValid")
     io.m.valid := oValid
     when(!io.m.valid || io.m.ready) {
       oValid := io.s.valid || rValid;

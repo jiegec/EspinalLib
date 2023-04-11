@@ -24,8 +24,8 @@ class AxiXbarBlackBox(
 ) extends BlackBox {
 
   val io = new Bundle {
-    val S_AXI_ACLK = in(Bool)
-    val S_AXI_ARESETN = in(Bool)
+    val S_AXI_ACLK = in(Bool())
+    val S_AXI_ARESETN = in(Bool())
 
     // AXI4 slave interface
     val S_AXI_AWID = in(Bits(idWidth * numMasters bits))

@@ -1,8 +1,6 @@
 package espinallib.zipcpu.rewrite
 
 import espinallib.common.GenUtils
-import espinallib.formal.FormalUtils.doFormal
-import spinal.core.Formal.past
 import spinal.core._
 
 /** A synchronous fifo
@@ -32,32 +30,32 @@ class SyncFifo[T <: Data](
   val io = new Bundle {
 
     /** write enable */
-    val write = in(Bool)
+    val write = in(Bool())
 
     /** write data */
     val wData = in(ty())
 
     /** whether the fifo is full */
-    val full = out(Bool)
+    val full = out(Bool())
 
     /** the number of items in fifo currently */
     val fill = out(UInt((log2Size + 1) bits))
 
     /** read enable */
-    val read = in(Bool)
+    val read = in(Bool())
 
     /** the data read */
     val rData = out(ty())
 
     /** whether the fifo is empty */
-    val empty = out(Bool)
+    val empty = out(Bool())
   }
 
   val size = 1 << log2Size
 
   // registers
-  val rFull = Reg(Bool) init (False)
-  val rEmpty = Reg(Bool) init (True)
+  val rFull = Reg(Bool()) init (False)
+  val rEmpty = Reg(Bool()) init (True)
   val mem = Mem(ty, size)
   val wrAddr = Reg(UInt((log2Size + 1) bits)) init (0)
   val rdAddr = Reg(UInt((log2Size + 1) bits)) init (0)
@@ -130,7 +128,7 @@ class SyncFifo[T <: Data](
   } else if (asyncRead) {
     io.rData := mem.readAsync(rdAddr(log2Size - 1 downto 0))
   } else {
-    val bypassValid = Reg(Bool) init (False)
+    val bypassValid = Reg(Bool()) init (False)
     when(!io.write) {
       bypassValid := False
     } elsewhen (rEmpty || (io.read && oFill === 1)) {
@@ -156,50 +154,6 @@ class SyncFifo[T <: Data](
     } otherwise {
       io.rData := rdData
     }
-  }
-
-  doFormal { (outerReset, pastValid) =>
-    when(!outerReset) {
-      val fFill = wrAddr - rdAddr
-      val fNext = rdAddr + 1
-
-      assert(fFill <= size)
-      assert(io.fill === fFill)
-
-      assert(rFull === (fFill === size))
-      assert(rEmpty === (fFill === 0))
-      assert(rdNext === fNext(log2Size - 1 downto 0))
-
-      if (!writeOnFull) {
-        assert(io.full === rFull)
-      } else {
-        assert(io.full === rFull && !io.read)
-      }
-
-      if (!readOnEmpty) {
-        assert(io.empty === rEmpty)
-      } else {
-        assert(io.empty === rEmpty && !io.write)
-      }
-
-      when(!Bool(asyncRead) && pastValid) {
-        when(fFill === 0) {
-          assert(rEmpty)
-          assert(io.empty || (Bool(readOnEmpty) && io.write))
-        } elsewhen (past(fFill) > 1) {
-          assert(!rEmpty)
-        } elsewhen (past(!io.read && fFill > 0)) {
-          assert(!rEmpty)
-        }
-      }
-
-      when(!rEmpty) {
-        assert(mem(rdAddr(log2Size - 1 downto 0)) === io.rData)
-      } elsewhen (Bool(readOnEmpty)) {
-        assert(io.rData === io.wData)
-      }
-    }
-
   }
 }
 

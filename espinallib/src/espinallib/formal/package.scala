@@ -3,8 +3,8 @@ package espinallib
 import espinallib.formal.FormalUtils.doFormal
 import espinallib.formal.FormalUtils.genPast
 import espinallib.formal.FormalUtils.slaveAssume
-import spinal.core.Formal.past
-import spinal.core.Formal.stable
+import spinal.core.formal.past
+import spinal.core.formal.stable
 import spinal.core._
 
 import scala.collection.mutable

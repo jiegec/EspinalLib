@@ -22,12 +22,12 @@ class Axi2AxiLiteBlackBox(
 ) extends BlackBox {
 
   val io = new Bundle {
-    val S_AXI_ACLK = in(Bool)
-    val S_AXI_ARESETN = in(Bool)
+    val S_AXI_ACLK = in(Bool())
+    val S_AXI_ARESETN = in(Bool())
 
     // AXI4 slave interface
-    val S_AXI_AWVALID = in(Bool)
-    val S_AXI_AWREADY = out(Bool)
+    val S_AXI_AWVALID = in(Bool())
+    val S_AXI_AWREADY = out(Bool())
     val S_AXI_AWID = in(UInt(idWidth bits))
     val S_AXI_AWADDR = in(UInt(addrWidth bits))
     val S_AXI_AWLEN = in(UInt(8 bits))
@@ -38,19 +38,19 @@ class Axi2AxiLiteBlackBox(
     val S_AXI_AWPROT = in(Bits(3 bits))
     val S_AXI_AWQOS = in(Bits(4 bits))
 
-    val S_AXI_WVALID = in(Bool)
-    val S_AXI_WREADY = out(Bool)
+    val S_AXI_WVALID = in(Bool())
+    val S_AXI_WREADY = out(Bool())
     val S_AXI_WDATA = in(Bits(dataWidth bits))
     val S_AXI_WSTRB = in(Bits(dataWidth / 8 bits))
-    val S_AXI_WLAST = in(Bool)
+    val S_AXI_WLAST = in(Bool())
 
-    val S_AXI_BVALID = out(Bool)
-    val S_AXI_BREADY = in(Bool)
+    val S_AXI_BVALID = out(Bool())
+    val S_AXI_BREADY = in(Bool())
     val S_AXI_BID = out(UInt(idWidth bits))
     val S_AXI_BRESP = out(Bits(2 bits))
 
-    val S_AXI_ARVALID = in(Bool)
-    val S_AXI_ARREADY = out(Bool)
+    val S_AXI_ARVALID = in(Bool())
+    val S_AXI_ARREADY = out(Bool())
     val S_AXI_ARID = in(UInt(idWidth bits))
     val S_AXI_ARADDR = in(UInt(addrWidth bits))
     val S_AXI_ARLEN = in(UInt(8 bits))
@@ -61,35 +61,35 @@ class Axi2AxiLiteBlackBox(
     val S_AXI_ARPROT = in(Bits(3 bits))
     val S_AXI_ARQOS = in(Bits(4 bits))
 
-    val S_AXI_RVALID = out(Bool)
-    val S_AXI_RREADY = in(Bool)
+    val S_AXI_RVALID = out(Bool())
+    val S_AXI_RREADY = in(Bool())
     val S_AXI_RID = out(UInt(idWidth bits))
     val S_AXI_RDATA = out(Bits(dataWidth bits))
     val S_AXI_RRESP = out(Bits(2 bits))
-    val S_AXI_RLAST = out(Bool)
+    val S_AXI_RLAST = out(Bool())
 
     // AXI4-Lite master interface
-    val M_AXI_AWVALID = out(Bool)
-    val M_AXI_AWREADY = in(Bool)
+    val M_AXI_AWVALID = out(Bool())
+    val M_AXI_AWREADY = in(Bool())
     val M_AXI_AWADDR = out(UInt(addrWidth bits))
     val M_AXI_AWPROT = out(Bits(3 bits))
 
-    val M_AXI_WVALID = out(Bool)
-    val M_AXI_WREADY = in(Bool)
+    val M_AXI_WVALID = out(Bool())
+    val M_AXI_WREADY = in(Bool())
     val M_AXI_WDATA = out(Bits(dataWidth bits))
     val M_AXI_WSTRB = out(Bits(dataWidth / 8 bits))
 
-    val M_AXI_BVALID = in(Bool)
-    val M_AXI_BREADY = out(Bool)
+    val M_AXI_BVALID = in(Bool())
+    val M_AXI_BREADY = out(Bool())
     val M_AXI_BRESP = in(Bits(2 bits))
 
-    val M_AXI_ARVALID = out(Bool)
-    val M_AXI_ARREADY = in(Bool)
+    val M_AXI_ARVALID = out(Bool())
+    val M_AXI_ARREADY = in(Bool())
     val M_AXI_ARADDR = out(UInt(addrWidth bits))
     val M_AXI_ARPROT = out(Bits(3 bits))
 
-    val M_AXI_RVALID = in(Bool)
-    val M_AXI_RREADY = out(Bool)
+    val M_AXI_RVALID = in(Bool())
+    val M_AXI_RREADY = out(Bool())
     val M_AXI_RDATA = in(Bits(dataWidth bits))
     val M_AXI_RRESP = in(Bits(2 bits))
   }

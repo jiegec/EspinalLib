@@ -37,8 +37,8 @@ class Axi2AxiLite(axiCfg: Axi4Config, axiLiteCfg: AxiLite4Config)
     val mBPipe = m.b.s2mPipe()
 
     // registers
-    val mAxiAwValid = Reg(Bool) init (False)
-    val sAxiWReady = Reg(Bool) init (False)
+    val mAxiAwValid = Reg(Bool()) init (False)
+    val sAxiWReady = Reg(Bool()) init (False)
     // track current aw info
     val axiAwAddr = Reg(cloneOf(s.aw.addr))
     val axiAwLen = Reg(cloneOf(s.aw.len))
@@ -56,7 +56,7 @@ class Axi2AxiLite(axiCfg: Axi4Config, axiLiteCfg: AxiLite4Config)
     val axiBId = Reg(UInt(axiCfg.idWidth bits)) init (0)
     val bId = Reg(UInt(axiCfg.idWidth bits)) init (0)
     val axiBResp = Reg(Bits(2 bits)) init (0)
-    val sAxiBValid = Reg(Bool) init (False)
+    val sAxiBValid = Reg(Bool()) init (False)
     val readFromWrFifo = Bool()
 
     // m.aw.valid
@@ -168,12 +168,12 @@ class Axi2AxiLite(axiCfg: Axi4Config, axiLiteCfg: AxiLite4Config)
   val read = new Area {
     // read
     // registers
-    val mAxiArValid = Reg(Bool) init (False)
+    val mAxiArValid = Reg(Bool()) init (False)
     val rFifoCount = UInt(5 bits)
     val rFifoFull = Bool()
     val rFifoEmpty = Bool()
     val rFifoRCount = UInt(8 bits)
-    val sAxiRValid = Reg(Bool) init (False)
+    val sAxiRValid = Reg(Bool()) init (False)
     val sAxiRResp = Reg(Bits(2 bits)) init (0)
     val rCounts = Reg(UInt(9 bits)) init (0)
     val axiArAddr = Reg(cloneOf(s.ar.addr)) init (0)
@@ -185,7 +185,7 @@ class Axi2AxiLite(axiCfg: Axi4Config, axiLiteCfg: AxiLite4Config)
     val sAxiRId = Reg(cloneOf(s.ar.id)) init (0)
     val rFifoRId = cloneOf(s.ar.id)
     val sAxiRData = Reg(cloneOf(s.r.data)) init (0)
-    val sAxiRLast = Reg(Bool) init (False)
+    val sAxiRLast = Reg(Bool()) init (False)
     val rId = Reg(cloneOf(s.r.id)) init (0)
     val readFromRdFifo = Bool()
     // pipes

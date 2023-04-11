@@ -14,18 +14,18 @@ class SFifoBlackBox(
 ) extends BlackBox {
 
   val io = new Bundle {
-    val i_clk = in(Bool)
-    val i_reset = in(Bool)
+    val i_clk = in(Bool())
+    val i_reset = in(Bool())
     // write interface
-    val i_wr = in(Bool)
+    val i_wr = in(Bool())
     val i_data = in(Bits(dataWidth bits))
-    val o_full = out(Bool)
+    val o_full = out(Bool())
     val o_fill = out(UInt(log2Size + 1 bits))
 
     // read interface
-    val i_rd = in(Bool)
+    val i_rd = in(Bool())
     val o_data = out(Bits(dataWidth bits))
-    val o_empty = out(Bool)
+    val o_empty = out(Bool())
   }
 
   setBlackBoxName("sfifo")
@@ -55,25 +55,25 @@ class SyncFifo[T <: Data](
   val io = new Bundle {
 
     /** write enable */
-    val write = in(Bool)
+    val write = in(Bool())
 
     /** write data */
     val wData = in(ty())
 
     /** whether the fifo is full */
-    val full = out(Bool)
+    val full = out(Bool())
 
     /** the number of items in fifo currently */
     val fill = out(UInt((log2Size + 1) bits))
 
     /** read enable */
-    val read = in(Bool)
+    val read = in(Bool())
 
     /** the data read */
     val rData = out(ty())
 
     /** whether the fifo is empty */
-    val empty = out(Bool)
+    val empty = out(Bool())
   }
 
   val dataWidth = widthOf(ty())
