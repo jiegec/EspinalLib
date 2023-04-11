@@ -41,6 +41,3 @@ jobs:
         mill-version: 0.10.0
     - name: Run tests
       run: mill _.test
-      # Optional: This step uploads information to the GitHub dependency graph and unblocking Dependabot alerts for the repository
-    - name: Upload dependency graph
-      uses: ckipp01/mill-dependency-submission@v1
